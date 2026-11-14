@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veldmuis Updater — mockup</title>
+<style>
+  :root{
+    --bg:#0d0807;
+    --window:#1a100e;
+    --panel:#221412;
+    --panel-2:#2a1a16;
+    --line:#4a2e24;
+    --line-soft:#35211b;
+    --text:#fff6ed;
+    --muted:#c9b8aa;
+    --muted-2:#9a8172;
+    --accent:#e59c3f;
+    --accent-2:#f5b85f;
+    --accent-ink:#201411;
+    --green:#7ac77a;
+    --yellow:#e8c15a;
+    --red:#f7768e;
+    --blue:#7fb8e6;
+    --purple:#c39bd3;
+    --mono:ui-monospace,SFMono-Regular,"Cascadia Code","Source Code Pro",Menlo,Consolas,monospace;
+    --sans:"Inter","Noto Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    margin:0;padding:34px 24px 28px;color:var(--text);font-family:var(--sans);
+    background:
+      radial-gradient(900px 560px at 12% -8%,rgba(229,156,63,.13),transparent 58%),
+      radial-gradient(760px 520px at 100% 6%,rgba(195,155,211,.07),transparent 55%),
+      linear-gradient(180deg,#120b09 0%,#0b0605 100%);
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  button{font-family:inherit}
+  .window{
+    width:960px;height:640px;background:var(--window);
+    border:1px solid #5a3a2a;border-radius:14px;overflow:hidden;
+    box-shadow:0 34px 90px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.025) inset;
+    display:flex;flex-direction:column;position:relative;
+  }
+  .titlebar{
+    height:38px;flex:0 0 38px;display:flex;align-items:center;gap:9px;
+    padding:0 10px 0 12px;background:linear-gradient(180deg,#271714,#1d1110);
+    border-bottom:1px solid var(--line-soft);user-select:none;
+  }
+  .logo{
+    width:22px;height:22px;border-radius:6px;display:grid;place-items:center;
+    background:linear-gradient(145deg,var(--accent-2),#b45f1f);
+    color:#201411;font-weight:800;font-size:12px;line-height:1;
+  }
+  .titlebar .title{font-size:12.5px;font-weight:600;letter-spacing:.2px}
+  .titlebar .spacer{flex:1}
+  .winbtn{
+    width:26px;height:22px;border:0;background:transparent;color:var(--muted);
+    border-radius:6px;display:grid;place-items:center;cursor:pointer;font-size:13px;
+  }
+  .winbtn:hover{background:#3a241d;color:var(--text)}
+  .winbtn.close:hover{background:#a33a3a;color:#fff}
+  .content{flex:1;min-height:0;display:flex;flex-direction:column}
+  #main-view{flex:1;min-height:0;display:flex;flex-direction:column}
+  .hidden{display:none!important}
+
+  .header{display:flex;align-items:flex-start;gap:16px;padding:18px 22px 12px}
+  .header h1{margin:0;font-size:20px;line-height:1.2;letter-spacing:-.2px}
+  .header p{margin:5px 0 0;color:var(--muted);font-size:12.5px}
+  .header p b{color:var(--text);font-weight:600}
+  .header .actions{margin-left:auto;display:flex;gap:6px}
+  .iconbtn{
+    width:32px;height:32px;border:1px solid var(--line);background:var(--panel);
+    color:var(--muted);border-radius:8px;display:grid;place-items:center;cursor:pointer;
+  }
+  .iconbtn:hover{color:var(--text);border-color:#6b4634}
+  .iconbtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  .banner{
+    display:none;margin:0 22px 10px;padding:10px 12px;border:1px solid #7a4a2a;
+    background:#2e1b12;border-radius:9px;color:#f3d5b8;font-size:12.5px;
+    align-items:center;gap:10px;
+  }
+  .banner.show{display:flex}
+  .banner .grow{flex:1}
+  .banner svg{width:16px;height:16px;flex:0 0 16px;fill:none;stroke:#f5b85f;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .banner button{
+    border:1px solid #8a5a33;background:#3a2418;color:#ffd9a8;border-radius:7px;
+    padding:6px 10px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+  }
+  .banner button:hover{filter:brightness(1.1)}
+
+  .summary{
+    margin:0 22px 12px;padding:14px 16px;border-radius:11px;border:1px solid var(--line);
+    background:linear-gradient(135deg,#2b1914 0%,#211310 100%);
+    display:flex;align-items:center;gap:15px;
+  }
+  .summary .count{font-size:31px;font-weight:800;color:var(--accent-2);line-height:1;letter-spacing:-1px}
+  .summary .meta strong{display:block;font-size:13.5px;font-weight:700}
+  .summary .meta span{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+  .summary .right{margin-left:auto;display:flex;align-items:center;gap:9px}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:4px 9px;
+    font-size:10.5px;font-weight:700;letter-spacing:.2px;white-space:nowrap;
+  }
+  .chip.reboot{color:#f3d58a;background:#33250f;border:1px solid #6b5320}
+  .chip.ok{color:#a7d8a7;background:#162416;border:1px solid #345a34}
+  .chip svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .btn{
+    border:0;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;
+    cursor:pointer;white-space:nowrap;
+  }
+  .btn.primary{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:var(--accent-ink)}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:#6b4634}
+  .btn:disabled{opacity:.42;cursor:default;filter:none}
+
+  .tabs{display:flex;gap:2px;padding:0 22px;border-bottom:1px solid var(--line-soft)}
+  .tab{
+    border:0;background:transparent;color:var(--muted);padding:9px 11px 10px;
+    font-size:12.5px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;
+    display:flex;align-items:center;gap:7px;
+  }
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--text);border-bottom-color:var(--accent)}
+  .tab .count{
+    font-size:10px;color:var(--muted-2);background:#2e1c16;border:1px solid var(--line-soft);
+    border-radius:99px;padding:1px 6px;font-weight:700;
+  }
+  .tab.active .count{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+  .tab[data-source="aur"].active{border-bottom-color:#d98aa2}
+  .tab[data-source="flatpak"].active{border-bottom-color:var(--blue)}
+
+  .workspace{
+    flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 304px;
+    gap:12px;padding:12px 22px;
+  }
+  .panel{
+    background:var(--panel);border:1px solid var(--line-soft);border-radius:10px;
+    min-height:0;display:flex;flex-direction:column;overflow:hidden;
+  }
+  .list-head{
+    display:grid;grid-template-columns:26px minmax(0,1fr) 205px 72px;gap:10px;
+    padding:9px 12px;border-bottom:1px solid var(--line-soft);color:var(--muted-2);
+    font-size:10px;text-transform:uppercase;letter-spacing:.9px;font-weight:700;
+  }
+  .list-head .right{text-align:right}
+  .package-list{overflow:auto;min-height:0;scrollbar-width:thin;scrollbar-color:#4a2e24 #1a100e}
+  .package-list::-webkit-scrollbar{width:8px}
+  .package-list::-webkit-scrollbar-track{background:#1a100e}
+  .package-list::-webkit-scrollbar-thumb{background:#4a2e24;border-radius:8px}
+  .row{
+    display:grid;grid-template-columns:26px minmax(0,1fr) 205px 72px;gap:10px;
+    align-items:center;padding:8px 12px;border-bottom:1px solid rgba(74,46,36,.35);
+    cursor:pointer;
+  }
+  .row:hover{background:#2a1915}
+  .row.selected{background:#332019;box-shadow:inset 3px 0 0 var(--accent)}
+  .row .name{min-width:0}
+  .row .pkg{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .sub{font-size:10.5px;color:var(--muted-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .row .ver{font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden}
+  .row .ver .new{color:var(--green)}
+  .row .size{font-size:10px;color:var(--muted-2);text-align:right;font-family:var(--mono)}
+  .check{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+  .badge{
+    display:inline-block;font-size:9px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;
+    border-radius:4px;padding:1px 5px;margin-right:5px;border:1px solid;vertical-align:1px;
+  }
+  .badge.core{color:#f5b85f;border-color:#7a4a2a;background:#2e1b12}
+  .badge.extra{color:#d99a6c;border-color:#6b4634;background:#2a1a16}
+  .badge.multilib{color:#c39bd3;border-color:#5d3d63;background:#251a28}
+  .badge.veldmuis{color:#9fd6a0;border-color:#3d5d3d;background:#162016}
+  .badge.aur{color:#f0a3b8;border-color:#6b2f3f;background:#2a151b}
+  .badge.flatpak{color:#9cc7ef;border-color:#2f4f6b;background:#151f2a}
+  .empty{padding:38px 16px;text-align:center;color:var(--muted-2);font-size:12.5px}
+  .empty strong{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
+
+  .details{padding:14px;overflow:auto;scrollbar-width:thin;scrollbar-color:#4a2e24 #1a100e}
+  .details::-webkit-scrollbar{width:8px}
+  .details::-webkit-scrollbar-track{background:#1a100e}
+  .details::-webkit-scrollbar-thumb{background:#4a2e24;border-radius:8px}
+  .details .eyebrow{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted-2);font-weight:700;margin-bottom:5px}
+  .details h2{margin:0 0 4px;font-size:16px;line-height:1.25;word-break:break-word}
+  .details .repo{font-size:10.5px;color:var(--muted-2);margin-bottom:10px}
+  .details .desc{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+  .details .ver{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .details .ver.new{color:var(--green)}
+  .details .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:11.5px}
+  .details .kv dt{color:var(--muted-2)}
+  .details .kv dd{margin:0;text-align:right;font-family:var(--mono);font-size:10.5px;color:var(--text)}
+  .warn{
+    margin-top:12px;padding:10px;border-radius:8px;border:1px solid #7a4a2a;
+    background:#2e1b12;color:#f3d5b8;font-size:11.5px;line-height:1.45;
+  }
+  .warn b{color:#ffd9a8}
+  .warn.aur{border-color:#6b2f3f;background:#2a151b;color:#f0c4d1}
+  .warn.aur b{color:#f7b8c9}
+  .reboot-note{color:var(--yellow)}
+
+  .footer{
+    display:flex;align-items:center;gap:12px;padding:10px 22px;border-top:1px solid var(--line-soft);
+    background:#1d1110;
+  }
+  .footer .link{
+    border:0;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;padding:0;
+  }
+  .footer .link:hover{color:var(--text)}
+  .footer .link svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .footer .spacer{flex:1}
+  .footer .selected{color:var(--muted);font-size:11.5px}
+  .footer .selected b{color:var(--text);font-weight:700}
+
+  #progress-view{display:none;flex:1;min-height:0;flex-direction:column;padding:18px 22px;gap:12px}
+  #progress-view.show{display:flex}
+  .progress-head{display:flex;align-items:flex-start;gap:12px}
+  .progress-head h1{margin:0;font-size:18px;letter-spacing:-.2px}
+  .progress-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+  .progress-head .chip{margin-left:auto;margin-top:2px}
+  .progress-card{border:1px solid var(--line-soft);background:var(--panel);border-radius:10px;padding:14px}
+  .bar{height:8px;border-radius:99px;background:#160d0b;overflow:hidden;border:1px solid #3a241d}
+  .bar > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#e59c3f,#f5b85f);transition:width .25s ease}
+  .progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted-2);margin-top:7px}
+  .source-progress{display:grid;gap:9px;margin-top:13px}
+  .source-line{display:grid;grid-template-columns:82px 1fr 48px;gap:10px;align-items:center;font-size:11.5px;color:var(--muted)}
+  .source-line .bar{height:5px}
+  .source-line .state{text-align:right;font-family:var(--mono);font-size:10px;color:var(--muted-2)}
+  .log{
+    flex:1;min-height:0;overflow:auto;background:#120b09;border:1px solid var(--line-soft);
+    border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:10.5px;
+    line-height:1.6;color:#cdbbae;white-space:pre-wrap;
+  }
+  .log .ok{color:var(--green)}
+  .log .warn{color:var(--yellow)}
+  .log .err{color:var(--red)}
+  .progress-actions{display:flex;gap:10px;align-items:center}
+  .progress-actions .spacer{flex:1}
+  .done-card{display:none;align-items:center;gap:12px;padding:14px;border:1px solid #345a34;background:#162416;border-radius:10px}
+  .done-card.show{display:flex}
+  .done-card .checkmark{width:30px;height:30px;border-radius:99px;background:#2f5a2f;display:grid;place-items:center;color:#c8f0c8;font-size:16px;font-weight:800}
+  .done-card strong{display:block;font-size:13.5px}
+  .done-card span{display:block;color:#a7c9a7;font-size:11.5px;margin-top:2px}
+  .toast{
+    position:absolute;right:18px;bottom:76px;background:#2e1b12;border:1px solid #7a4a2a;
+    color:#f3d5b8;border-radius:8px;padding:9px 12px;font-size:12px;opacity:0;
+    transform:translateY(6px);transition:.2s;pointer-events:none;z-index:10;
+  }
+  .toast.show{opacity:1;transform:none}
+  .mock-controls{display:flex;gap:8px;align-items:center;color:#8b7568;font-size:11.5px}
+  .mock-controls button{
+    background:#241513;color:#c9b8aa;border:1px solid #4a2e24;border-radius:6px;
+    padding:4px 8px;font-size:11px;cursor:pointer;
+  }
+  .mock-controls button:hover{color:var(--text);border-color:#6b4634}
+  .mock-controls .sep{opacity:.4}
+</style>
+</head>
+<body>
+  <div class="window" id="window">
+    <div class="titlebar">
+      <div class="logo">V</div>
+      <div class="title">Veldmuis Updater</div>
+      <div class="spacer"></div>
+      <button class="winbtn" title="Minimize">&#8211;</button>
+      <button class="winbtn" title="Maximize">&#9633;</button>
+      <button class="winbtn close" title="Close">&#215;</button>
+    </div>
+
+    <div class="content">
+      <div id="main-view">
+        <div class="header">
+          <div>
+            <h1 id="headline">Updates available</h1>
+            <p id="subhead">Last checked <b>just now</b> &middot; <b>12</b> packages across <b>3</b> sources</p>
+          </div>
+          <div class="actions">
+            <button class="iconbtn" id="refresh-btn" title="Check again" aria-label="Check again">
+              <svg viewBox="0 0 24 24"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg>
+            </button>
+            <button class="iconbtn" title="Settings" aria-label="Settings">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-4v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4h-.1a1.7 1.7 0 0 0-1.6 1z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="banner" id="mirror-banner">
+          <svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 9v5"/><path d="M12 17.5v.5"/></svg>
+          <div class="grow">Mirror returned <b>404</b> for a package signature. The failing mirror can be removed and the update retried.</div>
+          <button id="banner-refresh">Refresh mirrors and retry</button>
+        </div>
+
+        <div class="summary">
+          <div class="count" id="update-count">12</div>
+          <div class="meta">
+            <strong id="update-label">updates available</strong>
+            <span><span id="total-size">480.6 MiB</span> to download &middot; <span id="source-summary">8 system, 2 AUR, 2 Flatpak</span></span>
+          </div>
+          <div class="right">
+            <span class="chip reboot" id="reboot-chip">
+              <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-3 7"/><path d="M20 4v7h-7"/></svg>
+              Reboot required
+            </span>
+            <button class="btn primary" id="update-all">Update all</button>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-source="system" role="tab">System <span class="count" id="count-system">8</span></button>
+          <button class="tab" data-source="aur" role="tab">AUR <span class="count" id="count-aur">2</span></button>
+          <button class="tab" data-source="flatpak" role="tab">Flatpak <span class="count" id="count-flatpak">2</span></button>
+        </div>
+
+        <div class="workspace">
+          <div class="panel">
+            <div class="list-head">
+              <input type="checkbox" class="check" id="select-all" title="Select all in this source" checked>
+              <div>Package</div>
+              <div>Version</div>
+              <div class="right">Size</div>
+            </div>
+            <div class="package-list" id="package-list"></div>
+          </div>
+          <div class="panel details" id="details"></div>
+        </div>
+
+        <div class="footer">
+          <button class="link" id="refresh-link">
+            <svg viewBox="0 0 24 24"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg>
+            Refresh mirrors
+          </button>
+          <div class="spacer"></div>
+          <div class="selected"><b id="selected-count">12</b> selected &middot; <span id="selected-size">480.6 MiB</span></div>
+          <button class="btn ghost" id="update-selected">Update selected</button>
+        </div>
+      </div>
+
+      <div id="progress-view">
+        <div class="progress-head">
+          <div>
+            <h1 id="progress-title">Updating Veldmuis</h1>
+            <p id="progress-subtitle">Do not power off the system during the update.</p>
+          </div>
+          <span class="chip ok" id="progress-chip">0%</span>
+        </div>
+
+        <div class="progress-card">
+          <div class="bar"><i id="bar-overall"></i></div>
+          <div class="progress-meta"><span id="overall-label">Preparing transaction&hellip;</span><span id="overall-percent">0%</span></div>
+          <div class="source-progress">
+            <div class="source-line"><span>System</span><div class="bar"><i id="bar-system"></i></div><span class="state" id="state-system">0/8</span></div>
+            <div class="source-line"><span>AUR</span><div class="bar"><i id="bar-aur"></i></div><span class="state" id="state-aur">0/2</span></div>
+            <div class="source-line"><span>Flatpak</span><div class="bar"><i id="bar-flatpak"></i></div><span class="state" id="state-flatpak">0/2</span></div>
+          </div>
+        </div>
+
+        <div class="log" id="log"></div>
+
+        <div class="done-card" id="done-card">
+          <div class="checkmark">&#10003;</div>
+          <div>
+            <strong>Update complete</strong>
+            <span id="done-note">All selected packages were updated.</span>
+          </div>
+        </div>
+
+        <div class="progress-actions">
+          <button class="btn ghost" id="cancel-btn">Cancel</button>
+          <div class="spacer"></div>
+          <button class="btn primary hidden" id="done-btn">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">Arch mirrorlist refreshed.</div>
+  </div>
+
+  <div class="mock-controls">
+    <span>Mockup controls:</span>
+    <button id="mock-reset">Reset</button>
+    <button id="mock-error">Show mirror error</button>
+    <button id="mock-progress">Show progress</button>
+    <span class="sep">&middot;</span>
+    <span>960 &times; 640 compact window, not maximized</span>
+  </div>
+
+<script>
+const updates = [
+  { id:"linux", source:"system", name:"linux", repo:"core", current:"6.17.7.arch1-1", next:"6.17.8.arch1-1", bytes:142*1024*1024, summary:"Linux kernel and modules", reboot:true },
+  { id:"systemd", source:"system", name:"systemd", repo:"core", current:"257.8-1", next:"257.9-1", bytes:18*1024*1024, summary:"System and service manager", reboot:true },
+  { id:"mesa", source:"system", name:"mesa", repo:"extra", current:"25.2.4-1", next:"25.2.5-1", bytes:38*1024*1024, summary:"Open-source graphics stack", reboot:true },
+  { id:"firefox", source:"system", name:"firefox", repo:"extra", current:"144.0.2-1", next:"145.0-1", bytes:76*1024*1024, summary:"Standalone web browser" },
+  { id:"git", source:"system", name:"git", repo:"extra", current:"2.56.0-1", next:"2.56.1-1", bytes:8*1024*1024, summary:"Distributed version control system" },
+  { id:"python", source:"system", name:"python", repo:"extra", current:"3.13.9-1", next:"3.13.10-1", bytes:12*1024*1024, summary:"Python interpreter" },
+  { id:"libxml2", source:"system", name:"libxml2", repo:"core", current:"2.15.1-1", next:"2.15.2-1", bytes:1.2*1024*1024, summary:"XML parsing library" },
+  { id:"veldmuis-branding", source:"system", name:"veldmuis-branding", repo:"veldmuis-core", current:"20260306-23", next:"20260306-24", bytes:2.4*1024*1024, summary:"Veldmuis branding assets" },
+  { id:"vesktop", source:"aur", name:"vesktop", repo:"AUR", current:"1.5.6-1", next:"1.5.7-1", bytes:34*1024*1024, summary:"Vencord-based Discord client", warning:"AUR packages are user-supported. Review the PKGBUILD before updating. AUR helpers run as your user, never as root." },
+  { id:"protonup-qt", source:"aur", name:"protonup-qt", repo:"AUR", current:"2.11.0-1", next:"2.11.1-1", bytes:12*1024*1024, summary:"Proton and Wine manager", warning:"AUR packages are user-supported. Review the PKGBUILD before updating. AUR helpers run as your user, never as root." },
+  { id:"org.gimp.GIMP", source:"flatpak", name:"org.gimp.GIMP", repo:"flathub", current:"3.0.2", next:"3.0.4", bytes:64*1024*1024, summary:"GNU Image Manipulation Program" },
+  { id:"org.freedesktop.Platform", source:"flatpak", name:"org.freedesktop.Platform", repo:"flathub", current:"24.08", next:"24.08.2", bytes:73*1024*1024, summary:"Shared Flatpak runtime" }
+];
+
+const state = {
+  active: "system",
+  selected: new Set(updates.map(u => u.id)),
+  details: "linux",
+  mirrorError: false,
+  updating: false,
+  cancelled: false,
+  completed: false
+};
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+function fmtSize(bytes) {
+  if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GiB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MiB";
+}
+
+function badgeClass(repo) {
+  if (repo === "AUR") return "aur";
+  if (repo === "flathub") return "flatpak";
+  if (repo.startsWith("veldmuis")) return "veldmuis";
+  return repo;
+}
+
+function itemsFor(source) {
+  return updates.filter(u => u.source === source);
+}
+
+function selectedItems() {
+  return updates.filter(u => state.selected.has(u.id));
+}
+
+function render() {
+  const system = itemsFor("system");
+  const aur = itemsFor("aur");
+  const flatpak = itemsFor("flatpak");
+  $("#count-system").textContent = system.length;
+  $("#count-aur").textContent = aur.length;
+  $("#count-flatpak").textContent = flatpak.length;
+  $("#source-summary").textContent = `${system.length} system, ${aur.length} AUR, ${flatpak.length} Flatpak`;
+
+  const selected = selectedItems();
+  const total = selected.reduce((sum, u) => sum + u.bytes, 0);
+  const reboot = selected.some(u => u.reboot);
+  $("#selected-count").textContent = selected.length;
+  $("#selected-size").textContent = fmtSize(total);
+  $("#update-all").disabled = updates.length === 0;
+  $("#update-selected").disabled = selected.length === 0;
+  $("#reboot-chip").style.display = reboot ? "inline-flex" : "none";
+
+  $$(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.source === state.active));
+  renderList();
+  renderDetails();
+}
+
+function renderList() {
+  const list = $("#package-list");
+  const items = itemsFor(state.active);
+  $("#select-all").checked = items.length > 0 && items.every(u => state.selected.has(u.id));
+  list.innerHTML = "";
+  if (items.length === 0) {
+    list.innerHTML = `<div class="empty"><strong>Nothing to update</strong>This source is up to date.</div>`;
+    return;
+  }
+  for (const item of items) {
+    const row = document.createElement("div");
+    row.className = "row" + (state.details === item.id ? " selected" : "");
+    row.dataset.id = item.id;
+    row.innerHTML = `
+      <input type="checkbox" class="check" ${state.selected.has(item.id) ? "checked" : ""} aria-label="Select ${item.name}">
+      <div class="name">
+        <div class="pkg"><span class="badge ${badgeClass(item.repo)}">${item.repo}</span>${item.name}</div>
+        <div class="sub">${item.summary}</div>
+      </div>
+      <div class="ver"><span>${item.current}</span><span>&rarr;</span><span class="new">${item.next}</span></div>
+      <div class="size">${fmtSize(item.bytes)}</div>`;
+    row.addEventListener("click", (event) => {
+      if (event.target.matches("input")) return;
+      state.details = item.id;
+      render();
+    });
+    row.querySelector("input").addEventListener("change", (event) => {
+      if (event.target.checked) state.selected.add(item.id);
+      else state.selected.delete(item.id);
+      render();
+    });
+    list.appendChild(row);
+  }
+}
+
+function renderDetails() {
+  const item = updates.find(u => u.id === state.details) || itemsFor(state.active)[0];
+  const details = $("#details");
+  if (!item) {
+    details.innerHTML = `<div class="empty"><strong>No package selected</strong>Select a package to see details.</div>`;
+    return;
+  }
+  const warning = item.warning
+    ? `<div class="warn aur"><b>AUR package.</b> ${item.warning}</div>`
+    : item.reboot
+      ? `<div class="warn"><b class="reboot-note">Reboot after updating.</b> This package replaces a component that is currently in use.</div>`
+      : "";
+  details.innerHTML = `
+    <div class="eyebrow">Selected package</div>
+    <h2>${item.name}</h2>
+    <div class="repo"><span class="badge ${badgeClass(item.repo)}">${item.repo}</span>${item.summary}</div>
+    <div class="desc">This update moves <b>${item.name}</b> from <span class="ver">${item.current}</span> to <span class="ver new">${item.next}</span>.</div>
+    <dl class="kv">
+      <dt>Source</dt><dd>${item.source === "system" ? "Arch / Veldmuis" : item.source === "aur" ? "AUR helper" : "Flatpak"}</dd>
+      <dt>Download</dt><dd>${fmtSize(item.bytes)}</dd>
+      <dt>Requires reboot</dt><dd>${item.reboot ? "Yes" : "No"}</dd>
+    </dl>
+    ${warning}`;
+}
+
+function switchTab(source) {
+  state.active = source;
+  const first = itemsFor(source)[0];
+  if (first) state.details = first.id;
+  render();
+}
+
+function showToast(text) {
+  const toast = $("#toast");
+  toast.textContent = text;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+}
+
+function showMirrorError() {
+  state.mirrorError = true;
+  $("#mirror-banner").classList.add("show");
+}
+
+function refreshMirrors() {
+  state.mirrorError = false;
+  $("#mirror-banner").classList.remove("show");
+  showToast("Arch mirrorlist refreshed.");
+  $("#subhead").innerHTML = `Last checked <b>just now</b> &middot; <b>12</b> packages across <b>3</b> sources`;
+}
+
+function resetBars() {
+  for (const id of ["overall", "system", "aur", "flatpak"]) {
+    $(`#bar-${id}`).style.width = "0%";
+  }
+  $("#overall-percent").textContent = "0%";
+  $("#progress-chip").textContent = "0%";
+  $("#log").innerHTML = "";
+  $("#done-card").classList.remove("show");
+  $("#done-btn").classList.add("hidden");
+  $("#cancel-btn").classList.remove("hidden");
+  $("#progress-title").textContent = "Updating Veldmuis";
+  $("#progress-subtitle").textContent = "Do not power off the system during the update.";
+  $("#overall-label").textContent = "Preparing transaction…";
+}
+
+function addLog(text, cls = "") {
+  const log = $("#log");
+  const line = document.createElement("div");
+  if (cls) line.className = cls;
+  line.textContent = text;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function startUpdate(items) {
+  if (!items.length || state.updating) return;
+  state.updating = true;
+  state.cancelled = false;
+  state.completed = false;
+  $("#main-view").classList.add("hidden");
+  $("#progress-view").classList.add("show");
+  resetBars();
+
+  const order = ["system", "aur", "flatpak"];
+  const queue = [];
+  for (const source of order) queue.push(...items.filter(u => u.source === source));
+  const totals = {
+    system: items.filter(u => u.source === "system").length,
+    aur: items.filter(u => u.source === "aur").length,
+    flatpak: items.filter(u => u.source === "flatpak").length
+  };
+  const done = { system: 0, aur: 0, flatpak: 0 };
+
+  addLog(":: Synchronizing package databases...");
+  addLog(":: Starting full system upgrade...");
+  await sleep(450);
+
+  for (let i = 0; i < queue.length; i++) {
+    if (state.cancelled) break;
+    const item = queue[i];
+    const sourceLabel = item.source === "system" ? "System" : item.source === "aur" ? "AUR" : "Flatpak";
+    $("#overall-label").textContent = `${sourceLabel}: ${item.name} ${item.current} → ${item.next}`;
+    addLog(`[${sourceLabel}] updating ${item.name} ${item.current} -> ${item.next}`);
+    if (item.source === "aur") addLog("  building from AUR as your user", "warn");
+    await sleep(420);
+    done[item.source]++;
+    for (const source of order) {
+      const total = totals[source];
+      const percent = total ? Math.round((done[source] / total) * 100) : 100;
+      $(`#bar-${source}`).style.width = percent + "%";
+      $(`#state-${source}`).textContent = `${done[source]}/${total}`;
+    }
+    const overall = Math.round(((i + 1) / queue.length) * 100);
+    $("#bar-overall").style.width = overall + "%";
+    $("#overall-percent").textContent = overall + "%";
+    $("#progress-chip").textContent = overall + "%";
+    addLog(`  done ${item.name}`, "ok");
+  }
+
+  state.updating = false;
+  if (state.cancelled) {
+    $("#progress-title").textContent = "Update cancelled";
+    $("#progress-subtitle").textContent = "The current package may have been interrupted. Check the log before rebooting.";
+    $("#cancel-btn").classList.add("hidden");
+    $("#done-btn").classList.remove("hidden");
+    $("#done-btn").textContent = "Back";
+    $("#done-card").classList.remove("show");
+    addLog(":: Update cancelled by user", "err");
+    return;
+  }
+
+  state.completed = true;
+  $("#progress-title").textContent = "Update complete";
+  $("#progress-subtitle").textContent = "All selected packages were updated.";
+  $("#overall-label").textContent = "Finished";
+  $("#overall-percent").textContent = "100%";
+  $("#progress-chip").textContent = "100%";
+  $("#bar-overall").style.width = "100%";
+  $("#done-card").classList.add("show");
+  $("#done-note").textContent = items.some(u => u.reboot)
+    ? "A reboot is required to finish applying the update."
+    : "No reboot is required.";
+  $("#cancel-btn").classList.add("hidden");
+  $("#done-btn").classList.remove("hidden");
+  addLog(":: Update complete", "ok");
+}
+
+function wire() {
+  $$(".tab").forEach(tab => tab.addEventListener("click", () => switchTab(tab.dataset.source)));
+  $("#select-all").addEventListener("change", (event) => {
+    const items = itemsFor(state.active);
+    for (const item of items) {
+      if (event.target.checked) state.selected.add(item.id);
+      else state.selected.delete(item.id);
+    }
+    render();
+  });
+  $("#update-all").addEventListener("click", () => {
+    state.selected = new Set(updates.map(u => u.id));
+    render();
+    startUpdate(updates);
+  });
+  $("#update-selected").addEventListener("click", () => startUpdate(selectedItems()));
+  $("#refresh-btn").addEventListener("click", refreshMirrors);
+  $("#refresh-link").addEventListener("click", refreshMirrors);
+  $("#banner-refresh").addEventListener("click", refreshMirrors);
+  $("#cancel-btn").addEventListener("click", () => { state.cancelled = true; });
+  $("#done-btn").addEventListener("click", () => location.reload());
+  $("#mock-reset").addEventListener("click", () => location.reload());
+  $("#mock-error").addEventListener("click", showMirrorError);
+  $("#mock-progress").addEventListener("click", () => startUpdate(selectedItems()));
+}
+
+wire();
+render();
+if (location.hash === "#error") showMirrorError();
+if (location.hash === "#progress") startUpdate(selectedItems());
+</script>
+</body>
+</html>
