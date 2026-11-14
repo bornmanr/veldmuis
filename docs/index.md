@@ -35,6 +35,8 @@ Veldmuis is already installed, use the updating and troubleshooting guides.
 
 - [Architecture](architecture.md)
   High-level package, repository, ISO, installer, and release flow.
+- [Veldmuis Updater design](updater.md)
+  Proposed updater architecture, update sources, privilege model, and mockup.
 - [Contributing and issue triage](../CONTRIBUTING.md)
   Issue quality bar, triage fields, and pull request expectations.
 
