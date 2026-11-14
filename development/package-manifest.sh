@@ -16,6 +16,7 @@ veldmuis_core_package_order=(
   "veldmuis-displaymanager"
   "veldmuis-muis"
   "veldmuis-desktop-kde"
+  "veldmuis-dotfiles"
   "veldmuis-development"
   "veldmuis-gaming"
   "veldmuis-downloads"

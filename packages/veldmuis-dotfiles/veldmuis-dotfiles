@@ -1,0 +1,218 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+#
+# veldmuis-dotfiles: clone and apply a chezmoi dotfiles repository.
+# The helper is intentionally generic: it does not embed any user's repository.
+
+set -euo pipefail
+
+readonly prog="${0##*/}"
+
+info() {
+  printf '%s\n' "$*"
+}
+
+warn() {
+  printf '%s: %s\n' "$prog" "$*" >&2
+}
+
+die() {
+  warn "$*"
+  exit 1
+}
+
+usage() {
+  cat <<EOF
+Usage:
+  $prog init [--yes] [repository]
+  $prog diff
+  $prog apply
+  $prog status
+  $prog update
+
+Commands:
+  init      Clone a dotfiles repository, show the pending changes, and apply
+            them after confirmation. The repository may be a full git URL,
+            owner/repo, or a GitHub username.
+  diff      Show pending changes between the repository and \$HOME.
+  apply     Apply the repository to \$HOME.
+  status    Show a short summary of pending changes.
+  update    Pull the latest repository changes and apply them.
+
+Environment:
+  VELDMUIS_DOTFILES_ASSUME_YES=1  Skip the init confirmation prompt.
+EOF
+}
+
+require_chezmoi() {
+  command -v chezmoi >/dev/null 2>&1 || \
+    die "chezmoi is not installed. Install the veldmuis-dotfiles package."
+}
+
+source_dir() {
+  printf '%s\n' "${XDG_DATA_HOME:-${HOME}/.local/share}/chezmoi"
+}
+
+normalize_repository() {
+  local repo="$1"
+
+  case "${repo}" in
+    *://*|*@*:*)
+      # Full URL or scp-style SSH address.
+      printf '%s\n' "${repo}"
+      ;;
+    */*)
+      # owner/repo shorthand.
+      printf 'https://github.com/%s.git\n' "${repo}"
+      ;;
+    *)
+      # GitHub username: use the conventional dotfiles repository.
+      printf 'https://github.com/%s/dotfiles.git\n' "${repo}"
+      ;;
+  esac
+}
+
+repository_reachable() {
+  local repo="$1"
+
+  # Disable interactive prompts so an unauthenticated private repository fails
+  # immediately instead of hanging in the installer or the desktop launcher.
+  GIT_TERMINAL_PROMPT=0 \
+  GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=8' \
+    git ls-remote "${repo}" >/dev/null 2>&1
+}
+
+auth_help() {
+  local repo="$1"
+
+  cat >&2 <<EOF
+Could not read ${repo}.
+
+For a private repository, authenticate first:
+  SSH:   create ~/.ssh/id_ed25519, add ~/.ssh/id_ed25519.pub to GitHub, and
+         make sure the key is available to ssh-agent (ssh-add).
+  HTTPS: run 'gh auth login' and 'gh auth setup-git'.
+
+For a public repository, check the URL and the network connection.
+EOF
+}
+
+has_pending_changes() {
+  [[ -n "$(chezmoi status)" ]]
+}
+
+cmd_init() {
+  local assume_yes=0
+  local repo=""
+  local src=""
+
+  while (($# > 0)); do
+    case "$1" in
+      -y|--yes)
+        assume_yes=1
+        shift
+        ;;
+      -h|--help)
+        usage
+        return 0
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        die "Unknown option: $1"
+        ;;
+      *)
+        repo="$1"
+        shift
+        ;;
+    esac
+  done
+
+  [[ -n "${VELDMUIS_DOTFILES_ASSUME_YES:-}" ]] && assume_yes=1
+
+  require_chezmoi
+
+  if [[ -z "${repo}" ]]; then
+    [[ -t 0 ]] || die "No repository given and standard input is not a terminal."
+    read -r -p "Dotfiles repository (URL, owner/repo, or GitHub user): " repo
+  fi
+  [[ -n "${repo}" ]] || die "No repository given."
+
+  repo="$(normalize_repository "${repo}")"
+
+  src="$(source_dir)"
+  if [[ -d "${src}" ]] && \
+     [[ -n "$(find "${src}" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
+    die "chezmoi is already initialized at ${src}. Use '${prog} diff', '${prog} apply', or '${prog} update'."
+  fi
+
+  if ! repository_reachable "${repo}"; then
+    auth_help "${repo}"
+    exit 1
+  fi
+
+  info "Cloning ${repo}"
+  chezmoi init "${repo}"
+
+  if ! has_pending_changes; then
+    info "No changes to apply."
+    return 0
+  fi
+
+  chezmoi status
+  info ""
+  chezmoi diff || true
+
+  if ((assume_yes == 0)); then
+    [[ -t 0 ]] || die "Changes are pending and standard input is not a terminal; re-run with --yes."
+    local answer=""
+    read -r -p "Apply these changes? Applying may run scripts from the repository. [y/N] " answer
+    case "${answer}" in
+      y|Y|yes|YES) ;;
+      *)
+        info "Not applied. Review with '${prog} diff' and apply with '${prog} apply'."
+        return 0
+        ;;
+    esac
+  fi
+
+  chezmoi apply
+  info "Dotfiles applied."
+}
+
+cmd_simple() {
+  local command="$1"
+  shift
+
+  require_chezmoi
+  chezmoi "${command}" "$@"
+}
+
+main() {
+  (($# > 0)) || {
+    usage
+    exit 1
+  }
+
+  local command="$1"
+  shift
+
+  case "${command}" in
+    init)
+      cmd_init "$@"
+      ;;
+    diff|apply|status|update)
+      cmd_simple "${command}" "$@"
+      ;;
+    -h|--help|help)
+      usage
+      ;;
+    *)
+      die "Unknown command: ${command}"
+      ;;
+  esac
+}
+
+main "$@"

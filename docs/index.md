@@ -16,6 +16,8 @@ Veldmuis is already installed, use the updating and troubleshooting guides.
   and NVIDIA precautions.
 - [Package composition](packages.md)
   Default and optional package groups, including current package defaults.
+- [Restoring dotfiles](dotfiles.md)
+  Optional chezmoi-based helper for cloning a personal dotfiles repository.
 - [NVIDIA 580xx support](nvidia.md)
   Current NVIDIA legacy driver support boundary, update risk, and recovery
   notes.
