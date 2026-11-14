@@ -35,6 +35,9 @@ Rectangle {
         if (code.checked) {
             selected.push("code")
         }
+        if (dotfiles.checked) {
+            selected.push("dotfiles")
+        }
         chooserConfig.packageChoice = selected.join(",")
     }
 
@@ -51,6 +54,7 @@ Rectangle {
         qbittorrent.checked = selected.indexOf("qbittorrent") >= 0
         syncthing.checked = selected.indexOf("syncthing") >= 0
         code.checked = selected.indexOf("code") >= 0
+        dotfiles.checked = selected.indexOf("dotfiles") >= 0
         syncing = false
     }
 
@@ -337,6 +341,71 @@ Rectangle {
                     Text {
                         width: parent.width
                         text: qsTr("Visual Studio Code")
+                        color: "#c9b8aa"
+                        font.pixelSize: 14
+                        elide: Text.ElideRight
+                    }
+                }
+
+                onToggled: root.updateSelection()
+            }
+
+            CheckBox {
+                id: dotfiles
+
+                Layout.fillWidth: true
+                Layout.preferredHeight: 76
+                hoverEnabled: true
+                text: ""
+
+                indicator: Rectangle {
+                    width: 28
+                    height: 28
+                    x: 18
+                    y: (dotfiles.height - height) / 2
+                    radius: 5
+                    color: dotfiles.checked ? "#e59c3f" : "#201411"
+                    border.color: dotfiles.checked ? "#f5b85f" : "#80604d"
+                    border.width: 2
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 12
+                        height: 12
+                        radius: 3
+                        color: "#201411"
+                        visible: dotfiles.checked
+                    }
+                }
+
+                background: Rectangle {
+                    radius: 6
+                    color: dotfiles.checked ? "#3a271d"
+                                           : (dotfiles.hovered ? "#32211c" : "#2a1b17")
+                    border.color: dotfiles.checked ? "#e59c3f" : "#5a3a2a"
+                    border.width: dotfiles.checked ? 2 : 1
+                }
+
+                Column {
+                    anchors.left: dotfiles.indicator.right
+                    anchors.leftMargin: 16
+                    anchors.right: parent.right
+                    anchors.rightMargin: 18
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 3
+
+                    Text {
+                        width: parent.width
+                        text: qsTr("Dotfiles restore")
+                        color: "#fff6ed"
+                        font.pixelSize: 17
+                        font.bold: true
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        width: parent.width
+                        text: qsTr("chezmoi and the restore helper")
                         color: "#c9b8aa"
                         font.pixelSize: 14
                         elide: Text.ElideRight

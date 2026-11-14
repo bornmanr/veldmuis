@@ -1,0 +1,28 @@
+pkgname=veldmuis-dotfiles
+pkgver=20261115
+pkgrel=1
+pkgdesc="Optional chezmoi-based dotfiles restore helper for Veldmuis Linux"
+arch=("any")
+url="https://github.com/ruannnebornman/veldmuis"
+license=("MIT")
+depends=(
+  "bash"
+  "chezmoi"
+  "git"
+  "openssh"
+)
+source=(
+  "veldmuis-dotfiles"
+  "veldmuis-dotfiles.desktop"
+)
+sha256sums=(
+  "60f670ca00088ef19159b01d821cf170af324b09092d969a053ad32e6c6faf7e"
+  "e1da4a80ab97939a5660fe4fa8d3433882d7d8014f5fc82f24b40aba92b362dc"
+)
+
+package() {
+  install -Dm755 "${srcdir}/veldmuis-dotfiles" \
+    "${pkgdir}/usr/bin/veldmuis-dotfiles"
+  install -Dm644 "${srcdir}/veldmuis-dotfiles.desktop" \
+    "${pkgdir}/usr/share/applications/veldmuis-dotfiles.desktop"
+}

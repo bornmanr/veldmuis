@@ -76,6 +76,10 @@ declare -ag veldmuis_installer_development_packages=(
   veldmuis-development
 )
 
+declare -ag veldmuis_installer_dotfiles_packages=(
+  veldmuis-dotfiles
+)
+
 # The installer always provides the Veldmuis terminal.
 declare -ag veldmuis_installer_terminal_packages=(
   veldmuis-muis

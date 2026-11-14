@@ -186,6 +186,7 @@ Optional package groups include:
 - `veldmuis-downloads`
 - `veldmuis-sync`
 - `veldmuis-nvidia-legacy`
+- `veldmuis-dotfiles`
 
 Infrastructure and installer packages include:
 
