@@ -288,6 +288,18 @@ It publishes:
 Publishing requires Cloudflare R2-compatible credentials and environment
 variables used by the workflow.
 
+Uploads retry transient object-storage failures, such as a multipart part that
+disappears before the upload is completed, and fail immediately on
+authentication, authorization, or bucket-configuration errors so a real
+permission regression is never hidden behind retries. The shared helper
+`development/aws-r2-retry.sh` also sets the AWS CLI transfer defaults that make
+these uploads less fragile: 64 MB multipart parts and four concurrent requests.
+`R2_RETRY_MAX_ATTEMPTS`, `R2_RETRY_BASE_DELAY_SECONDS`,
+`R2_RETRY_MAX_DELAY_SECONDS`, and `R2_VERIFY_ATTEMPTS` override the policy. A
+failed run can leave incomplete multipart uploads behind; they are invisible to
+package managers but still consume storage, so the package bucket should keep a
+lifecycle rule that aborts incomplete multipart uploads older than one day.
+
 ## Package Refresh Checks
 
 The package-refresh workflow checks whether the published package repository is

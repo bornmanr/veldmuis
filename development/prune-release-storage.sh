@@ -10,6 +10,10 @@ release_tag="${VELDMUIS_RELEASE_TAG:-}"
 dry_run="${RELEASE_STORAGE_PRUNE_DRY_RUN:-0}"
 release_root=""
 protected_prefix=""
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# shellcheck source=development/aws-r2-retry.sh
+. "${script_dir}/aws-r2-retry.sh"
 
 log() {
   printf '[prune-release-storage] %s\n' "$*"
@@ -51,7 +55,7 @@ run_aws() {
     return 0
   fi
 
-  aws "$@"
+  aws_r2 -- "$@"
 }
 
 remove_previous_releases() {
@@ -113,6 +117,7 @@ main() {
   release_root="${prefix}/releases"
   protected_prefix="${release_root}/${release_tag}/"
   configure_credentials
+  aws_r2_configure_client
   remove_previous_releases
   verify_previous_releases_removed
 }

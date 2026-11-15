@@ -17,6 +17,9 @@ remove_legacy_aliases="${R2_RELEASE_REMOVE_LEGACY_ALIASES:-0}"
 immutable_cache_control="${R2_RELEASE_IMMUTABLE_CACHE_CONTROL:-public, max-age=31536000, immutable}"
 channel_cache_control="${R2_RELEASE_CHANNEL_CACHE_CONTROL:-public, max-age=60, must-revalidate}"
 
+# shellcheck source=development/aws-r2-retry.sh
+. "${repo_root}/development/aws-r2-retry.sh"
+
 declare -a artifact_names=()
 declare -a legacy_aliases=()
 iso_name=""
@@ -59,7 +62,7 @@ run_aws() {
     return 0
   fi
 
-  aws "$@"
+  aws_r2 -- "$@"
 }
 
 configure_credentials() {
@@ -155,7 +158,8 @@ upload_channel_document() {
 }
 
 bucket_object_size() {
-  aws s3api head-object \
+  aws_r2 --attempts "${R2_VERIFY_ATTEMPTS}" --label "head-object $1" -- \
+    s3api head-object \
     --bucket "${bucket}" \
     --key "$1" \
     --endpoint-url "${endpoint}" \
@@ -177,6 +181,10 @@ verify_public_url() {
   local relative_path="$1"
 
   curl --fail --silent --show-error --location --head \
+    --retry "${R2_VERIFY_CURL_RETRIES}" \
+    --retry-delay "${R2_VERIFY_CURL_RETRY_DELAY_SECONDS}" \
+    --retry-connrefused \
+    --max-time 60 \
     "${public_base}/${relative_path}" >/dev/null
 }
 
@@ -367,6 +375,7 @@ main() {
   fi
 
   configure_credentials
+  aws_r2_configure_client
 
   artifact_stem="veldmuis-${release_tag}-${installer}-x86_64"
   iso_name="${artifact_stem}.iso"

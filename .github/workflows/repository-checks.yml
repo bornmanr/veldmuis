@@ -60,6 +60,12 @@ jobs:
           set -euo pipefail
           ./development/check-release-publisher.sh
 
+      - name: Check R2 publisher retries
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./development/check-r2-publish-retries.sh
+
       - name: Check Calamares package source checksums
         shell: bash
         run: |

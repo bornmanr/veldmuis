@@ -38,6 +38,9 @@ fi
 # shellcheck source=packages/veldmuis-nvidia-legacy/nvidia-580xx-package-set.sh
 . "${nvidia_package_set}"
 
+# shellcheck source=development/aws-r2-retry.sh
+. "${script_dir}/aws-r2-retry.sh"
+
 expected_packages=("${veldmuis_nvidia_580xx_repository_packages[@]}")
 operation="publish"
 signing_fingerprint=""
@@ -407,24 +410,26 @@ upload_known_good() {
   # Keep mutable metadata out of the bulk sync. Payloads and the source NVIDIA
   # manifest become available first; the manifest and its signature are the
   # final two objects written so readers never trust an unverified manifest.
-  aws s3 cp "${stage_dir}" "${target}" \
+  aws_r2 --label "known-good payload copy" -- s3 cp "${stage_dir}" "${target}" \
     --recursive \
     --exclude "${manifest_name}" \
     --exclude "${manifest_name}.sig" \
     --cache-control "${cache_control}" \
     --endpoint-url "${endpoint}" \
     --only-show-errors
-  aws s3 sync "${stage_dir}" "${target}" \
+  aws_r2 --label "known-good payload sync" -- s3 sync "${stage_dir}" "${target}" \
     --exclude "${manifest_name}" \
     --exclude "${manifest_name}.sig" \
     --cache-control "${cache_control}" \
     --endpoint-url "${endpoint}" \
     --only-show-errors
-  aws s3 cp "${stage_dir}/${manifest_name}" "${target}/${manifest_name}" \
+  aws_r2 --label "known-good manifest upload" -- \
+    s3 cp "${stage_dir}/${manifest_name}" "${target}/${manifest_name}" \
     --cache-control "${cache_control}" \
     --endpoint-url "${endpoint}" \
     --only-show-errors
-  aws s3 cp "${stage_dir}/${manifest_name}.sig" "${target}/${manifest_name}.sig" \
+  aws_r2 --label "known-good manifest signature upload" -- \
+    s3 cp "${stage_dir}/${manifest_name}.sig" "${target}/${manifest_name}.sig" \
     --cache-control "${cache_control}" \
     --endpoint-url "${endpoint}" \
     --only-show-errors
@@ -435,7 +440,8 @@ verify_known_good() {
 
   while IFS= read -r file_name; do
     log "Verifying known-good object: ${prefix}/${file_name}"
-    aws s3api head-object \
+    aws_r2 --attempts "${R2_VERIFY_ATTEMPTS}" --label "head-object ${prefix}/${file_name}" -- \
+      s3api head-object \
       --bucket "${bucket}" \
       --key "${prefix}/${file_name}" \
       --endpoint-url "${endpoint}" \
@@ -461,7 +467,8 @@ collect_keep_files() {
 }
 
 list_remote_keys() {
-  aws s3api list-objects-v2 \
+  aws_r2 --attempts "${R2_VERIFY_ATTEMPTS}" --label "list known-good objects" -- \
+    s3api list-objects-v2 \
     --bucket "${bucket}" \
     --prefix "${prefix}/" \
     --query 'Contents[].Key' \
@@ -513,7 +520,8 @@ prune_superseded_known_good() {
 
   for remote_key in ${stale_keys[@]+"${stale_keys[@]}"}; do
     log "Deleting superseded known-good object: ${remote_key}"
-    aws s3api delete-object \
+    aws_r2 --label "delete superseded known-good object ${remote_key}" -- \
+      s3api delete-object \
       --bucket "${bucket}" \
       --key "${remote_key}" \
       --endpoint-url "${endpoint}" >/dev/null
@@ -581,6 +589,7 @@ publish_prepared_known_good() {
   verify_local_stage
   configure_credentials
   configure_endpoint
+  aws_r2_configure_client
   upload_known_good
   verify_known_good
 }
@@ -606,6 +615,7 @@ prune_prepared_known_good() {
   require_cmd aws
   configure_credentials
   configure_endpoint
+  aws_r2_configure_client
   prune_superseded_known_good
 }
 
