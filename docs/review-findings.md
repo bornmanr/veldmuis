@@ -51,7 +51,7 @@ Tick the checkbox only when the fix is merged and verified.
 | R11 | Raise the minimum RAM to 8 GiB; keep no swap. | Done in PR #101 |
 | R12 | Leave the opt-in sync integration as-is and document the caveat; downgrade to P3. | Done in PR #107 |
 | R13 | Keep the `/etc/os-release` override, add `VERSION_ID=rolling`, document `/usr/lib`. | Done in PR #105 |
-| R14 | Make muis the default terminal everywhere; remove konsole from the default set but keep it installable. | Done in PR #106 |
+| R14 | Make muis the default terminal everywhere; ship konsole next to it as the extra terminal instead of removing it entirely. | Done in PR #106; konsole restored to `veldmuis-common` |
 | R15 | Document the Arch database-signature limitation in `SECURITY.md`. | Done in PR #107 |
 | R16 | Deferred: handle the independent trust anchor through the website at the end. | Deferred |
 | R17 | Disable Actions PR approval and enable Dependabot alerts/security updates. | Done in repository settings |
@@ -392,17 +392,23 @@ where appropriate.
 
 ### R14. Live ISO has no terminal emulator
 
-- [ ] Fix or document
+- [x] Fix and verify on the live image
 
 **Evidence**
 
 `archiso/veldmuis/packages.x86_64` pulls `veldmuis-desktop`, whose metapackages
-deliberately omit a terminal. `konsole` is only added to the installed target.
+deliberately omitted a terminal emulator at review time.
 
 **Impact**
 
 Users must use a TTY to collect installer logs. A GUI terminal would be
 friendlier on a live image.
+
+**Resolution**
+
+`veldmuis-common` ships both `veldmuis-muis` and `konsole`, so the live image and
+every default install have a GUI terminal. `muis` remains the KDE default
+terminal; `konsole` is the familiar extra one.
 
 **Recommended fix**
 

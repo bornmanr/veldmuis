@@ -63,6 +63,7 @@ xfsprogs
 fuse2
 bash-completion
 fish
+konsole
 veldmuis-muis
 veldmuis-skemer
 nano
@@ -154,11 +155,14 @@ It also installs the Veldmuis `mpv` configuration.
 
 ## Terminal
 
-Veldmuis uses `muis` as its terminal. `veldmuis-muis` is part of
-`veldmuis-common`, so the live image and every default install include it. KDE's
-default terminal is set to `muis`, and the Calamares installer installs it
-explicitly. `konsole` is not installed by default; it remains available from
-the Arch repositories as an emergency fallback.
+`veldmuis-common` ships two terminal emulators: `konsole`, the familiar KDE
+terminal, and `muis`, the Veldmuis terminal. Both land on the live image and in
+every default install.
+
+`muis` is the default: `kdeglobals` sets `TerminalApplication=muis`, so "Open
+Terminal", the taskbar launcher, and the Calamares installer use it. `konsole`
+is there for anyone who wants a plain KDE terminal, without having to learn the
+muis-specific keys; it only starts when picked from the menu.
 
 `veldmuis-muis` repackages the prebuilt binaries from the latest signed muis
 GitHub release. `development/resolve-muis-release.sh` verifies the release
