@@ -8,13 +8,18 @@ on:
       - packages/nvidia-580xx-src/**
       - packages/veldmuis-nvidia-legacy/**
       - packages/veldmuis-muis/**
+      - packages/veldmuis-skemer/**
+      - packages/veldmuis-common/**
+      - development/package-manifest.sh
       - development/build-nvidia-packages.sh
       - development/scan-nvidia-packages.sh
       - development/check-package-repo-refresh.sh
       - development/resolve-muis-release.sh
+      - development/resolve-skemer-release.sh
       - development/publish-r2-package-repo.sh
       - development/aws-r2-retry.sh
       - development/muis-keyring/**
+      - development/skemer-keyring/**
   schedule:
     # 12:17 Africa/Johannesburg. GitHub cron uses UTC.
     - cron: "17 10 * * *"

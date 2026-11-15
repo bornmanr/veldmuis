@@ -155,6 +155,26 @@ request is opened with the `VELDMUIS_SYNC_TOKEN` repository secret so its checks
 run without an approval prompt. The package refresh rebuilds and publishes
 `veldmuis-muis` after that pull request is merged.
 
+## Skemer Release Watch
+
+The `Skemer Release Watch` workflow resolves the latest signed Skemer release
+with `development/resolve-skemer-release.sh`. When the pinned version in
+`packages/veldmuis-skemer/PKGBUILD` differs, it pins the new version on a
+`chore/skemer-release-pin` branch and opens a pull request for review. The pull
+request is opened with the `VELDMUIS_SYNC_TOKEN` repository secret so its checks
+run without an approval prompt.
+
+The package is kept out of the package manifest, `veldmuis-common`, and the
+installer package set until the first signed release is pinned. For the first
+release, enable `veldmuis-skemer` in those sets in the same pin pull request so
+the package refresh builds and publishes it.
+
+The Skemer keyring files are copied from the Skemer repository's
+`packaging/keys/` into `development/skemer-keyring/`. The watcher skips its run
+until those files exist. The Skemer repository's `libalpm ABI Watch` opens an
+issue when the pacman soname changes; the package dependency must be updated
+with the rebuild.
+
 ## Calamares Release Watch
 
 Calamares is not in the Arch repositories, so `packages/calamares/` is a
