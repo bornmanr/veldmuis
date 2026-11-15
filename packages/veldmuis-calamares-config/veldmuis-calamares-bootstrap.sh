@@ -9,6 +9,7 @@ gaming_choice="no-gaming"
 downloads_choice="no-downloads"
 sync_choice="no-sync"
 development_choice="no-development"
+dotfiles_choice="no-dotfiles"
 live_repo_root="/opt/veldmuis/repo"
 installer_package_sets="/usr/lib/veldmuis/installer-package-sets.sh"
 tmp_pacman_conf=""
@@ -149,6 +150,20 @@ normalize_development_choice() {
   esac
 }
 
+normalize_dotfiles_choice() {
+  case "${dotfiles_choice}" in
+    no-dotfiles|dotfiles)
+      ;;
+    "")
+      dotfiles_choice="no-dotfiles"
+      ;;
+    *)
+      log "Unknown dotfiles choice '${dotfiles_choice}', defaulting to no-dotfiles"
+      dotfiles_choice="no-dotfiles"
+      ;;
+  esac
+}
+
 normalize_extras_choice() {
   local extra
   local -a extras=()
@@ -157,6 +172,7 @@ normalize_extras_choice() {
   downloads_choice="no-downloads"
   sync_choice="no-sync"
   development_choice="no-development"
+  dotfiles_choice="no-dotfiles"
 
   [[ -n "${extras_choice}" ]] || return 0
 
@@ -174,6 +190,9 @@ normalize_extras_choice() {
         ;;
       code)
         development_choice="code"
+        ;;
+      dotfiles)
+        dotfiles_choice="dotfiles"
         ;;
       "")
         ;;
@@ -430,6 +449,14 @@ selected_development_packages() {
   esac
 }
 
+selected_dotfiles_packages() {
+  case "${dotfiles_choice}" in
+    dotfiles)
+      printf '%s\n' "${veldmuis_installer_dotfiles_packages[@]}"
+      ;;
+  esac
+}
+
 selected_terminal_packages() {
   printf '%s\n' "${veldmuis_installer_terminal_packages[@]}"
 }
@@ -471,6 +498,11 @@ initial_target_packages() {
   while IFS= read -r package; do
     [[ -n "${package}" ]] || continue
     packages+=("${package}")
+  done < <(selected_dotfiles_packages)
+
+  while IFS= read -r package; do
+    [[ -n "${package}" ]] || continue
+    packages+=("${package}")
   done < <(selected_terminal_packages)
 
   printf '%s\n' "${packages[@]}"
@@ -506,6 +538,7 @@ main() {
   normalize_downloads_choice
   normalize_sync_choice
   normalize_development_choice
+  normalize_dotfiles_choice
   write_pacman_conf
   prepare_target_root
 

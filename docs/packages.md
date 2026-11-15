@@ -227,6 +227,19 @@ github-cli
 `code` is the proprietary Visual Studio Code package from the Arch
 repositories; it is not the open-source Code - OSS build.
 
+`veldmuis-dotfiles`:
+
+```text
+chezmoi
+git
+openssh
+```
+
+`veldmuis-dotfiles` installs `chezmoi` and the `veldmuis-dotfiles` helper plus a
+**Restore Dotfiles** desktop entry. It is opt-in, embeds no repository, and
+applies nothing until the user runs the helper. See
+[Restoring dotfiles](dotfiles.md).
+
 ## Graphics Choices
 
 Graphics package selection is handled by the Calamares bootstrap, not by the

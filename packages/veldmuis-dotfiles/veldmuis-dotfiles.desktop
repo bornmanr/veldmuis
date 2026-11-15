@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Restore Dotfiles
+GenericName=Dotfiles restore
+Comment=Clone and apply a chezmoi dotfiles repository
+Exec=veldmuis-dotfiles init
+Icon=user-home
+Terminal=true
+Categories=System;Settings;
+Keywords=dotfiles;chezmoi;restore;config;
+StartupNotify=false
