@@ -3,7 +3,7 @@ pkgver=20260628
 pkgrel=2
 pkgdesc="Optional development applications metapackage for Veldmuis Linux"
 arch=("any")
-url="https://github.com/ruannnebornman/veldmuis"
+url="https://github.com/bornmanr/veldmuis"
 license=("MIT")
 depends=(
   "code"

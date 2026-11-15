@@ -15,7 +15,7 @@ repo_root="$(cd "${script_dir}/.." && pwd)"
 pkgbuild="${VELDMUIS_MUIS_PKGBUILD:-${repo_root}/packages/veldmuis-muis/PKGBUILD}"
 keyring="${MUIS_RELEASE_KEYRING:-${repo_root}/development/muis-keyring/muis-release.gpg}"
 trusted_file="${MUIS_RELEASE_TRUSTED:-${repo_root}/development/muis-keyring/muis-trusted}"
-source_repo="${MUIS_RELEASE_REPO:-ruannnebornman/muis}"
+source_repo="${MUIS_RELEASE_REPO:-bornmanr/muis}"
 work_dir=""
 
 log() {
@@ -52,7 +52,7 @@ Behavior:
     and rewrites packages/veldmuis-muis/PKGBUILD to pin its version and checksum
 
 Environment overrides:
-  MUIS_RELEASE_REPO     Default: ruannnebornman/muis
+  MUIS_RELEASE_REPO     Default: bornmanr/muis
   MUIS_RELEASE_KEYRING  Default: development/muis-keyring/muis-release.gpg
   MUIS_RELEASE_TRUSTED  Default: development/muis-keyring/muis-trusted
   VELDMUIS_MUIS_PKGBUILD

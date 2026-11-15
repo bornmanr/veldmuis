@@ -73,8 +73,8 @@ installation, so the public image is a network installer.
 ## Official Links
 
 - Website: https://veldmuislinux.org/
-- Source, issues, and releases: https://github.com/ruannnebornman/veldmuis
-- Issue tracker: https://github.com/ruannnebornman/veldmuis/issues
+- Source, issues, and releases: https://github.com/bornmanr/veldmuis
+- Issue tracker: https://github.com/bornmanr/veldmuis/issues
 - Package repository: https://packages.veldmuislinux.org/
 - ISO releases: https://downloads.veldmuislinux.org/iso/
 
@@ -237,7 +237,7 @@ known limitations are listed in [SUPPORT.md](SUPPORT.md).
 Veldmuis is maintained by **Ruanne Bornman**:
 
 - Personal site: https://ruannebornman.com/
-- GitHub: https://github.com/ruannnebornman
+- GitHub: https://github.com/bornmanr
 - The project's voice and look are its own — shaped around the African veld at
   sunset — not an extension of any one personality.
 

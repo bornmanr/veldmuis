@@ -29,7 +29,7 @@ Download the public key, signed manifest, and detached signature:
 
 ```sh
 curl -fL -o veldmuis.gpg \
-  https://raw.githubusercontent.com/ruannnebornman/veldmuis/main/packages/veldmuis-keyring/veldmuis.gpg
+  https://raw.githubusercontent.com/bornmanr/veldmuis/main/packages/veldmuis-keyring/veldmuis.gpg
 curl -fL -o network.manifest.txt https://downloads.veldmuislinux.org/iso/channels/network.manifest.txt
 curl -fL -o network.manifest.txt.sig https://downloads.veldmuislinux.org/iso/channels/network.manifest.txt.sig
 gpg --show-keys --with-fingerprint veldmuis.gpg

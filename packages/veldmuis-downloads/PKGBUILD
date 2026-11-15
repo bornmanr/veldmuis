@@ -3,7 +3,7 @@ pkgver=20260622
 pkgrel=1
 pkgdesc="Optional download applications metapackage for Veldmuis Linux"
 arch=("any")
-url="https://github.com/ruannnebornman/veldmuis"
+url="https://github.com/bornmanr/veldmuis"
 license=("MIT")
 depends=(
   "qbittorrent"

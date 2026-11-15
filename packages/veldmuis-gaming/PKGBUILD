@@ -3,7 +3,7 @@ pkgver=20260621
 pkgrel=2
 pkgdesc="Gaming application metapackage for Veldmuis Linux"
 arch=("any")
-url="https://github.com/ruannnebornman/veldmuis"
+url="https://github.com/bornmanr/veldmuis"
 license=("MIT")
 depends=(
   "steam"
