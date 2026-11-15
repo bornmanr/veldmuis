@@ -22,6 +22,9 @@ repo_cache_control="${R2_PACKAGE_REPO_CACHE_CONTROL:-public, max-age=60, must-re
 metadata_cache_control="${R2_PACKAGE_METADATA_CACHE_CONTROL:-no-store, max-age=0, must-revalidate}"
 root_cache_control="${R2_PACKAGE_ROOT_CACHE_CONTROL:-public, max-age=60, must-revalidate}"
 
+# shellcheck source=development/aws-r2-retry.sh
+. "${script_dir}/aws-r2-retry.sh"
+
 log() {
   printf '[publish-r2-package-repo] %s\n' "$*"
 }
@@ -214,7 +217,7 @@ run_aws() {
     return 0
   fi
 
-  aws "$@"
+  aws_r2 -- "$@"
 }
 
 upload_repo_payloads() {
@@ -321,18 +324,26 @@ verify_bucket_object() {
   local key="$1"
 
   log "Verifying bucket object: ${key}"
-  aws s3api head-object \
+  aws_r2 --attempts "${R2_VERIFY_ATTEMPTS}" --label "head-object ${key}" -- \
+    s3api head-object \
     --bucket "${bucket}" \
     --key "${key}" \
     --endpoint-url "${endpoint}" \
-    >/dev/null
+    >/dev/null \
+    || die "Unable to verify published object: ${key}"
 }
 
 verify_public_url() {
   local url="$1"
 
   log "Verifying public URL: ${url}"
-  curl --fail --silent --show-error --location --head "${url}" >/dev/null
+  curl --fail --silent --show-error --location --head \
+    --retry "${R2_VERIFY_CURL_RETRIES}" \
+    --retry-delay "${R2_VERIFY_CURL_RETRY_DELAY_SECONDS}" \
+    --retry-connrefused \
+    --max-time 60 \
+    "${url}" >/dev/null \
+    || die "Unable to verify public URL: ${url}"
 }
 
 verify_repo_metadata() {
@@ -383,6 +394,7 @@ main() {
 
   configure_credentials
   configure_endpoint
+  aws_r2_configure_client
 
   validate_repo_files "${core_repo}"
   validate_repo_files "${extra_repo}"
