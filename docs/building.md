@@ -164,10 +164,10 @@ with `development/resolve-skemer-release.sh`. When the pinned version in
 request is opened with the `VELDMUIS_SYNC_TOKEN` repository secret so its checks
 run without an approval prompt.
 
-The package is kept out of the package manifest, `veldmuis-common`, and the
-installer package set until the first signed release is pinned. For the first
-release, enable `veldmuis-skemer` in those sets in the same pin pull request so
-the package refresh builds and publishes it.
+`veldmuis-skemer` is part of `veldmuis-common` and the installer base package
+set, so the live image and every default install include it. The
+`Skemer Release Watch` workflow pins new signed releases on the
+`chore/skemer-release-pin` branch.
 
 The Skemer keyring files are copied from the Skemer repository's
 `packaging/keys/` into `development/skemer-keyring/`. The watcher skips its run
