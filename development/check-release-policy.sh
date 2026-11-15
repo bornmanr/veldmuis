@@ -310,7 +310,7 @@ check_release_metadata_source() {
 check_private_reporting_source() {
   local security_policy="${repo_root}/SECURITY.md"
 
-  grep -qF 'https://github.com/ruannnebornman/veldmuis/security/advisories/new' \
+  grep -qF 'https://github.com/bornmanr/veldmuis/security/advisories/new' \
     "${security_policy}" || \
     die "Security policy does not provide the private vulnerability-reporting form."
   if grep -q 'minimal issue asking for a private contact' "${security_policy}"; then

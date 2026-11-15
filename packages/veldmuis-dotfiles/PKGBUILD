@@ -3,7 +3,7 @@ pkgver=20261115
 pkgrel=1
 pkgdesc="Optional chezmoi-based dotfiles restore helper for Veldmuis Linux"
 arch=("any")
-url="https://github.com/ruannnebornman/veldmuis"
+url="https://github.com/bornmanr/veldmuis"
 license=("MIT")
 depends=(
   "bash"

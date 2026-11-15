@@ -3,7 +3,7 @@ pkgver=1.7.4
 pkgrel=3
 pkgdesc="muis terminal emulator (prebuilt signed upstream release)"
 arch=("x86_64")
-url="https://github.com/ruannnebornman/muis"
+url="https://github.com/bornmanr/muis"
 license=("MIT")
 depends=(
   "gtk3"

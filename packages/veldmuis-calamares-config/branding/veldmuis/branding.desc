@@ -21,10 +21,10 @@ strings:
   versionedName: "Veldmuis Linux Installer"
   shortVersionedName: "Veldmuis"
   bootloaderEntryName: "Veldmuis Linux"
-  productUrl: "https://github.com/ruannnebornman/veldmuis"
-  supportUrl: "https://github.com/ruannnebornman/veldmuis"
-  knownIssuesUrl: "https://github.com/ruannnebornman/veldmuis/issues"
-  releaseNotesUrl: "https://github.com/ruannnebornman/veldmuis"
+  productUrl: "https://github.com/bornmanr/veldmuis"
+  supportUrl: "https://github.com/bornmanr/veldmuis"
+  knownIssuesUrl: "https://github.com/bornmanr/veldmuis/issues"
+  releaseNotesUrl: "https://github.com/bornmanr/veldmuis"
   donateUrl: ""
 
 images:

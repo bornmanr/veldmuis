@@ -3,7 +3,7 @@
 
 iso_name="veldmuis"
 iso_label="VELDMUIS_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="Veldmuis Linux <https://github.com/ruannnebornman/veldmuis>"
+iso_publisher="Veldmuis Linux <https://github.com/bornmanr/veldmuis>"
 iso_application="Veldmuis Linux Live/Install Media"
 iso_version="@VELDMUIS_ISO_VERSION@"
 install_dir="veldmuis"

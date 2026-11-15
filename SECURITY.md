@@ -9,7 +9,7 @@ Use only these project-controlled sources for downloads, source, releases, and
 support:
 
 - Website: https://veldmuislinux.org/
-- Source, issues, and releases: https://github.com/ruannnebornman/veldmuis
+- Source, issues, and releases: https://github.com/bornmanr/veldmuis
 - Package repository: https://packages.veldmuislinux.org/
 - ISO releases: https://downloads.veldmuislinux.org/iso/
 
@@ -73,7 +73,7 @@ fingerprint:
 
 ```sh
 curl -fL -o veldmuis.gpg \
-  https://raw.githubusercontent.com/ruannnebornman/veldmuis/main/packages/veldmuis-keyring/veldmuis.gpg
+  https://raw.githubusercontent.com/bornmanr/veldmuis/main/packages/veldmuis-keyring/veldmuis.gpg
 gpg --show-keys --with-fingerprint veldmuis.gpg
 ```
 
@@ -195,7 +195,7 @@ This is a deliberate trade-off, not an unreviewed default.
 Submit sensitive reports through the repository's private vulnerability form:
 
 ```text
-https://github.com/ruannnebornman/veldmuis/security/advisories/new
+https://github.com/bornmanr/veldmuis/security/advisories/new
 ```
 
 Do not put exploit details, signing material, non-public service information,
