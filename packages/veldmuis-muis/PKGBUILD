@@ -1,5 +1,5 @@
 pkgname=veldmuis-muis
-pkgver=1.7.1
+pkgver=1.7.2
 pkgrel=3
 pkgdesc="muis terminal emulator (prebuilt signed upstream release)"
 arch=("x86_64")
@@ -17,7 +17,7 @@ provides=("muis")
 conflicts=("muis")
 options=("!strip" "!debug")
 source=("muis-${pkgver}-x86_64-linux.tar.gz::${url}/releases/download/v${pkgver}/muis-${pkgver}-x86_64-linux.tar.gz")
-sha256sums=("8dbaa1941d4bc0f021fd06015e5052685411efa8cb089f0249cf784816a334f6")
+sha256sums=("b0cd1c78da8bb21181ebceb6141edc8e766752cccdd5ad34222e34351881a4fd")
 
 package() {
   cd "${srcdir}/muis-${pkgver}-x86_64-linux"
