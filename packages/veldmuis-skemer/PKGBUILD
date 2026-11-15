@@ -22,10 +22,9 @@ conflicts=("veldmuis-update")
 options=("!strip" "!debug")
 install="veldmuis-skemer.install"
 source=("skemer-${pkgver}-x86_64-linux.tar.gz::${url}/releases/download/v${pkgver}/skemer-${pkgver}-x86_64-linux.tar.gz")
-# Replaced by development/resolve-skemer-release.sh with the verified upstream
-# checksum after the first signed Skemer release. The package is intentionally
-# not in the package manifest until that pin exists.
-sha256sums=("0000000000000000000000000000000000000000000000000000000000000000")
+# Verified upstream checksum. development/resolve-skemer-release.sh rewrites
+# this line after checking the release signature against the vendored key.
+sha256sums=("2d4d4697c4f9bd1835ff1c0969b20f92ed7cc0d001c0dbd44c78a5d219a67a9e")
 
 package() {
   cd "${srcdir}/skemer-${pkgver}-x86_64-linux"

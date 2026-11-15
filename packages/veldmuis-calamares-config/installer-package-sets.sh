@@ -8,6 +8,7 @@
 
 declare -ag veldmuis_installer_base_packages=(
   veldmuis-desktop
+  veldmuis-skemer
 )
 
 declare -ag veldmuis_installer_cpu_amd_packages=(

@@ -64,6 +64,7 @@ fuse2
 bash-completion
 fish
 veldmuis-muis
+veldmuis-skemer
 nano
 git
 openssh
@@ -177,13 +178,12 @@ Veldmuis uses Skemer as its updater. `veldmuis-skemer` repackages the signed
 Skemer release and installs `skemer`, the privileged `skemer-helper`, the
 D-Bus/polkit files, the desktop entry, and the `veldmuis-update` symlink.
 
-The package is prepared in `packages/veldmuis-skemer/` but is intentionally not
-in `development/package-manifest.sh`, `veldmuis-common`, or the installer
-package set until the first signed Skemer release is pinned. The
+The package is part of `veldmuis-common` and the installer base package set, so
+the live image and every default install include it. The
 `Skemer Release Watch` workflow verifies a release against the vendored key in
-`development/skemer-keyring/`, then opens a pull request pinning the version and
-checksum. For the first release, enable `veldmuis-skemer` in those package sets
-in the same pin pull request so the refresh builds and publishes it.
+`development/skemer-keyring/`, then opens a pull request that pins the version
+and checksum in `packages/veldmuis-skemer/PKGBUILD`; merging it triggers the
+package refresh.
 
 `libalpm.so` is pinned in the package so a prebuilt Skemer is only installed
 against a compatible pacman ABI. The Skemer repository's `libalpm ABI Watch`
