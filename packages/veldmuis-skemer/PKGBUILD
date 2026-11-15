@@ -1,9 +1,9 @@
 pkgname=veldmuis-skemer
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Skemer update manager for Veldmuis (prebuilt signed upstream release)"
 arch=("x86_64")
-url="https://github.com/ruannnebornman/Skemer"
+url="https://github.com/bornmanr/skemer"
 license=("MIT")
 depends=(
   "gtk3"

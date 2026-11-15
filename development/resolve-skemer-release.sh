@@ -15,7 +15,7 @@ repo_root="$(cd "${script_dir}/.." && pwd)"
 pkgbuild="${VELDMUIS_SKEMER_PKGBUILD:-${repo_root}/packages/veldmuis-skemer/PKGBUILD}"
 keyring="${SKEMER_RELEASE_KEYRING:-${repo_root}/development/skemer-keyring/skemer-release.gpg}"
 trusted_file="${SKEMER_RELEASE_TRUSTED:-${repo_root}/development/skemer-keyring/skemer-trusted}"
-source_repo="${SKEMER_RELEASE_REPO:-ruannnebornman/Skemer}"
+source_repo="${SKEMER_RELEASE_REPO:-bornmanr/skemer}"
 work_dir=""
 
 log() {
@@ -53,7 +53,7 @@ Behavior:
     checksum
 
 Environment overrides:
-  SKEMER_RELEASE_REPO     Default: ruannnebornman/Skemer
+  SKEMER_RELEASE_REPO     Default: bornmanr/skemer
   SKEMER_RELEASE_KEYRING  Default: development/skemer-keyring/skemer-release.gpg
   SKEMER_RELEASE_TRUSTED  Default: development/skemer-keyring/skemer-trusted
   VELDMUIS_SKEMER_PKGBUILD
