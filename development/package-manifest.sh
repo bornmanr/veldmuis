@@ -15,6 +15,8 @@ veldmuis_core_package_order=(
   "veldmuis-boot"
   "veldmuis-displaymanager"
   "veldmuis-muis"
+  # Enable after the first signed Skemer release is pinned:
+  # "veldmuis-skemer"
   "veldmuis-desktop-kde"
   "veldmuis-dotfiles"
   "veldmuis-development"

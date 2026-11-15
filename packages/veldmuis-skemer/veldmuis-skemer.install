@@ -1,0 +1,18 @@
+post_install() {
+  systemctl daemon-reload
+  systemctl try-restart skemer-helper.service 2>/dev/null || true
+  dbus-send --system --type=method_call --dest=org.freedesktop.DBus \
+    / org.freedesktop.DBus.ReloadConfig >/dev/null 2>&1 || true
+}
+
+post_upgrade() {
+  post_install
+}
+
+pre_remove() {
+  systemctl stop skemer-helper.service 2>/dev/null || true
+}
+
+post_remove() {
+  systemctl daemon-reload
+}

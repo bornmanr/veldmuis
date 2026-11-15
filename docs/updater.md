@@ -1,5 +1,9 @@
 # Veldmuis Updater — Design Plan
 
+> **Status:** superseded. The agreed updater is Skemer, delivered as
+> `veldmuis-skemer`. The design lives in the Skemer repository
+> (`docs/design.md`). This page is kept as the original proposal.
+
 Status: design proposal  
 Related: `veldmuis-update`, `veldmuis-mirrorlist`, muis architecture  
 Mockup: [`updater-mockup.html`](updater-mockup.html) · [PNG preview](updater-mockup.png)

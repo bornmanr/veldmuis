@@ -1,0 +1,54 @@
+pkgname=veldmuis-skemer
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Skemer update manager for Veldmuis (prebuilt signed upstream release)"
+arch=("x86_64")
+url="https://github.com/ruannnebornman/Skemer"
+license=("MIT")
+depends=(
+  "gtk3"
+  "webkit2gtk-4.1"
+  "libayatana-appindicator"
+  "polkit"
+  "dbus"
+  "pacman"
+  "libalpm.so=16-64"
+)
+optdepends=(
+  "flatpak: Flatpak system and user updates"
+)
+provides=("skemer" "veldmuis-update")
+conflicts=("veldmuis-update")
+options=("!strip" "!debug")
+install="veldmuis-skemer.install"
+source=("skemer-${pkgver}-x86_64-linux.tar.gz::${url}/releases/download/v${pkgver}/skemer-${pkgver}-x86_64-linux.tar.gz")
+# Replaced by development/resolve-skemer-release.sh with the verified upstream
+# checksum after the first signed Skemer release. The package is intentionally
+# not in the package manifest until that pin exists.
+sha256sums=("0000000000000000000000000000000000000000000000000000000000000000")
+
+package() {
+  cd "${srcdir}/skemer-${pkgver}-x86_64-linux"
+
+  install -Dm755 skemer "${pkgdir}/usr/bin/skemer"
+  ln -s skemer "${pkgdir}/usr/bin/veldmuis-update"
+  install -Dm755 skemer-helper "${pkgdir}/usr/lib/skemer/skemer-helper"
+
+  install -Dm644 skemer-helper.service \
+    "${pkgdir}/usr/lib/systemd/system/skemer-helper.service"
+  install -Dm644 org.veldmuislinux.skemer.service \
+    "${pkgdir}/usr/share/dbus-1/system-services/org.veldmuislinux.skemer.service"
+  install -Dm644 org.veldmuislinux.skemer.conf \
+    "${pkgdir}/usr/share/dbus-1/system.d/org.veldmuislinux.skemer.conf"
+  install -Dm644 org.veldmuislinux.skemer.policy \
+    "${pkgdir}/usr/share/polkit-1/actions/org.veldmuislinux.skemer.policy"
+
+  install -Dm644 skemer.desktop \
+    "${pkgdir}/usr/share/applications/skemer.desktop"
+  install -Dm644 skemer-autostart.desktop \
+    "${pkgdir}/etc/xdg/autostart/skemer.desktop"
+  install -Dm644 icons/skemer.png \
+    "${pkgdir}/usr/share/icons/hicolor/256x256/apps/skemer.png"
+  install -Dm644 LICENSE \
+    "${pkgdir}/usr/share/licenses/veldmuis-skemer/LICENSE"
+}
