@@ -17,6 +17,11 @@ Rectangle {
     property bool syncing: true
     readonly property var chooserConfig: typeof config === "undefined" ? null : config
 
+    // packagechooserq deletes its global storage key when packageChoice is empty, and
+    // Calamares' shellprocess expansion treats a missing key as a fatal error. An
+    // explicit token keeps "no extras" a defined state for the bootstrap job.
+    readonly property string noSelectionToken: "None"
+
     function updateSelection() {
         if (syncing || chooserConfig === null) {
             return
@@ -38,7 +43,7 @@ Rectangle {
         if (dotfiles.checked) {
             selected.push("dotfiles")
         }
-        chooserConfig.packageChoice = selected.join(",")
+        chooserConfig.packageChoice = selected.length > 0 ? selected.join(",") : noSelectionToken
     }
 
     function loadSelection() {
@@ -56,6 +61,9 @@ Rectangle {
         code.checked = selected.indexOf("code") >= 0
         dotfiles.checked = selected.indexOf("dotfiles") >= 0
         syncing = false
+        // Publish the normalized selection right away so the global storage key exists
+        // even when the user leaves this page without toggling anything.
+        updateSelection()
     }
 
     Component.onCompleted: loadSelection()
