@@ -27,6 +27,10 @@ EOF
 
 install -d -m 0750 -o live -g live /home/live
 install -d -m 0755 -o live -g live /home/live/Desktop
+# Keep the live session unlocked and awake for the whole install: the shipped
+# /etc/xdg/kscreenlockerrc would otherwise lock the screen after 10 minutes.
+install -d -m 0755 -o live -g live /home/live/.config
+chown -R live:live /home/live/.config
 install -m 0755 /etc/skel/Desktop/Veldmuis\ Installer.desktop \
   /home/live/Desktop/Veldmuis\ Installer.desktop
 chown live:live /home/live/Desktop/Veldmuis\ Installer.desktop
