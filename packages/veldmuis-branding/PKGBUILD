@@ -1,10 +1,14 @@
 pkgname=veldmuis-branding
 pkgver=20260306
-pkgrel=23
+pkgrel=25
 pkgdesc="Branding assets and default theme configuration for Veldmuis Linux"
 arch=("any")
 url="https://github.com/bornmanr/veldmuis"
-license=("MIT" "CC-BY-SA")
+license=("MIT" "CC-BY-SA" "GPL-2.0-or-later" "LGPL-2.0-or-later")
+depends=(
+  "breeze"
+  "breeze-gtk"
+)
 _source_root="${PWD}"
 source=(
   "rat1.png"
@@ -15,18 +19,31 @@ source=(
 )
 sha256sums=(
   "8755243103bbdf5a27cec8196defa4a33a74328c696c1503f72aebce68f0c1b7"
-  "4a2da7c03e3b651acca8ee0192cf8df1d44bab45bbf09b3a3b9ce96f4d143a94"
+  "cee3364e2bf3fcf78434b8c095acef1517249f022377bc40851a3a07b2044720"
   "10512740e425d40a16d6d3dee52e5b87301b60446649a56c98237be9aeb6bdf7"
   "bf383e3df5779778f2c3a47302a1a6feaa007e1e8486a2de497ed8ec51cc839f"
   "ea3a60d2840d0c16f8feea17a82de50dca80085f23fc1ced7758d5260466078b"
 )
 _payload_sha256sums=(
+  "594edb1d7931c103b441f097c2889865f6b05ee8d1ac0f56cd9d2754d1d2e2ab  palette/veldmuis.palette"
+  "cdf3ba0d04d6b74129f7f8d9a9de9a4a39e184a5a44bff21b963fde7f93bbe9d  colors/Veldmuis.colors"
+  "d3917cb120f4b6ae742e54ab9a9803a8b7973758f8e858a8aa6a4b4661ea2ef1  gtk/settings-3.0.ini"
+  "d3917cb120f4b6ae742e54ab9a9803a8b7973758f8e858a8aa6a4b4661ea2ef1  gtk/settings-4.0.ini"
+  "4d8d27ff4a8a001eb2a88502aeab2e6760d622f1bdcbe994c9dd6998c79f3ef3  gtk/theme/index.theme"
+  "ab0e0fb7f891d7359958aa0f8d3cac75031c094aeaf041d94592177517bc8d4d  gtk/theme/gtk-3.0/gtk.css"
+  "f53990be75a12994cfc04a4fa01c9c04935e2577004171a16f001b4aec342bdc  gtk/theme/gtk-4.0/gtk.css"
+  "a44aa5a18a964e02870416bef8ba75c7a3916d5667436f8906bffc0ef741e776  plasma-theme/metadata.json"
+  "cdf3ba0d04d6b74129f7f8d9a9de9a4a39e184a5a44bff21b963fde7f93bbe9d  plasma-theme/colors"
+  "0f0779456add2067868249218f270be65a6360c25285a6765b915ce01c588b76  plasma-theme/plasmarc"
+  "06b765c9615fa52980e6bfb07c5070fb402e987c13ba6ade37b526a7cd8842ef  org.veldmuis.desktop/metadata.json"
+  "6b002b371df5eb7824d87c3e8d20f129a3fd94f479a83beb8c816af1c6111c51  org.veldmuis.desktop/contents/defaults"
+  "fb0494c1cec1b826754f16f3e167af3c81ecfd4019d74832d31a1910d131917d  org.veldmuis.desktop/contents/layouts/org.kde.plasma.desktop-layout.js"
+  "b939b25f4b3e97cd9d514fa6ba84e0fc345ac0c85e78ce4b368160bf98b1c5a3  org.veldmuis.desktop/contents/splash/Splash.qml"
+  "606739a68533cd009d7401c25f449b2637cb66264a5358d42969fa1635ff3221  org.veldmuis.desktop/contents/splash/images/busywidget.svgz"
   "b8ef66c8b922a4ae6b510dc45ab573d5b6fc0d485a80ee1034eab33b03357a5e  veldmuis-wallpaper/metadata.json"
   "ce59f3622432f8e862dae5532cf52e9cd6e4ed0d0d138e47252bfe0f49d47b36  veldmuis-wallpaper/contents/images/1920x1080.png"
   "9bceaaf249a947f4d41529902cdaa796b79978cbd4bffa4bcb359f5fb0c9393d  veldmuis-wallpaper/contents/screenshot.png"
-  "a3ef2b240a54e83f3235b5a371dd159324b4a9b7611e3c66511834f98cb1cf7b  org.veldmuis.desktop/metadata.json"
-  "7e049ffc21a57df24b41688286f06ea66de4248f07835c9db921d84bb8bb5834  org.veldmuis.desktop/contents/defaults"
-  "fb0494c1cec1b826754f16f3e167af3c81ecfd4019d74832d31a1910d131917d  org.veldmuis.desktop/contents/layouts/org.kde.plasma.desktop-layout.js"
+  "6b0c3e1834c093c668de465bf5abf3c0cf9d8e3bebb0feb6fc52661fc6760d75  ../../development/generate-brand-palette.py"
 )
 
 verify() {
@@ -45,6 +62,24 @@ package() {
     "${pkgdir}/etc/xdg/gwenviewrc"
   install -Dm644 "${srcdir}/kscreenlockerrc" \
     "${pkgdir}/etc/xdg/kscreenlockerrc"
+  install -Dm644 "${_source_root}/colors/Veldmuis.colors" \
+    "${pkgdir}/usr/share/color-schemes/Veldmuis.colors"
+  install -Dm644 "${_source_root}/gtk/settings-3.0.ini" \
+    "${pkgdir}/etc/xdg/gtk-3.0/settings.ini"
+  install -Dm644 "${_source_root}/gtk/settings-4.0.ini" \
+    "${pkgdir}/etc/xdg/gtk-4.0/settings.ini"
+  install -Dm644 "${_source_root}/gtk/theme/index.theme" \
+    "${pkgdir}/usr/share/themes/Veldmuis/index.theme"
+  install -Dm644 "${_source_root}/gtk/theme/gtk-3.0/gtk.css" \
+    "${pkgdir}/usr/share/themes/Veldmuis/gtk-3.0/gtk.css"
+  install -Dm644 "${_source_root}/gtk/theme/gtk-4.0/gtk.css" \
+    "${pkgdir}/usr/share/themes/Veldmuis/gtk-4.0/gtk.css"
+  install -Dm644 "${_source_root}/plasma-theme/metadata.json" \
+    "${pkgdir}/usr/share/plasma/desktoptheme/Veldmuis/metadata.json"
+  install -Dm644 "${_source_root}/plasma-theme/colors" \
+    "${pkgdir}/usr/share/plasma/desktoptheme/Veldmuis/colors"
+  install -Dm644 "${_source_root}/plasma-theme/plasmarc" \
+    "${pkgdir}/usr/share/plasma/desktoptheme/Veldmuis/plasmarc"
   install -Dm644 "${_source_root}/veldmuis-wallpaper/metadata.json" \
     "${pkgdir}/usr/share/wallpapers/VeldmuisDawn/metadata.json"
   install -Dm644 "${_source_root}/veldmuis-wallpaper/contents/images/1920x1080.png" \
@@ -57,4 +92,8 @@ package() {
     "${pkgdir}/usr/share/plasma/look-and-feel/org.veldmuis.desktop/contents/defaults"
   install -Dm644 "${_source_root}/org.veldmuis.desktop/contents/layouts/org.kde.plasma.desktop-layout.js" \
     "${pkgdir}/usr/share/plasma/look-and-feel/org.veldmuis.desktop/contents/layouts/org.kde.plasma.desktop-layout.js"
+  install -Dm644 "${_source_root}/org.veldmuis.desktop/contents/splash/Splash.qml" \
+    "${pkgdir}/usr/share/plasma/look-and-feel/org.veldmuis.desktop/contents/splash/Splash.qml"
+  install -Dm644 "${_source_root}/org.veldmuis.desktop/contents/splash/images/busywidget.svgz" \
+    "${pkgdir}/usr/share/plasma/look-and-feel/org.veldmuis.desktop/contents/splash/images/busywidget.svgz"
 }

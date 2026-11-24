@@ -1,11 +1,15 @@
 /*
+ * Colours are injected from packages/veldmuis-branding/palette/veldmuis.palette
+ * by development/generate-brand-palette.py, which writes stylesheet.qss from
+ * this template. Edit the template, not the generated stylesheet.
+ *
  * SPDX-FileCopyrightText: no
  * SPDX-License-Identifier: CC0-1.0
  */
 
 QWidget {
-  background-color: #201411;
-  color: #f6eadf;
+  background-color: #1a100e;
+  color: #fff6ed;
 }
 
 #sidebarApp {
@@ -13,17 +17,17 @@ QWidget {
 }
 
 QPushButton {
-  background-color: #2a1b17;
+  background-color: #2a1a16;
   border: 1px solid rgba(229, 156, 63, 0.35);
   border-radius: 6px;
-  color: #f6eadf;
+  color: #fff6ed;
   padding: 6px 12px;
 }
 
 QPushButton:enabled {
   background-color: #e59c3f;
   border-color: #e59c3f;
-  color: #1e1513;
+  color: #201411;
 }
 
 QLineEdit,
@@ -33,9 +37,9 @@ QPlainTextEdit,
 QListView,
 QTreeView,
 QTableView {
-  background-color: #2a1b17;
+  background-color: #2a1a16;
   border: 1px solid rgba(229, 156, 63, 0.25);
-  color: #f6eadf;
+  color: #fff6ed;
 }
 
 QListView#products {

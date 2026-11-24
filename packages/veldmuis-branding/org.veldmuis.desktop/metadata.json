@@ -6,9 +6,9 @@
                 "Name": "Veldmuis Linux"
             }
         ],
-        "Description": "Breeze Dark with Veldmuis defaults",
+        "Description": "Breeze layout with the Veldmuis colour scheme, desktop theme and splash",
         "Id": "org.veldmuis.desktop",
-        "License": "GPLv2+",
+        "License": "GPL-2.0-or-later",
         "Name": "Veldmuis"
     }
 }
