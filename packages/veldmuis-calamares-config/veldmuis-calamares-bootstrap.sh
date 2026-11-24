@@ -196,6 +196,8 @@ normalize_extras_choice() {
         ;;
       "")
         ;;
+      None)
+        ;;
       *)
         log "Unknown extras choice '${extra}', ignoring it"
         ;;
