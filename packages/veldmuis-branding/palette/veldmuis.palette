@@ -1,0 +1,35 @@
+# Veldmuis palette: single source of truth for desktop, GTK and installer colours.
+#
+# Consumed by development/generate-brand-palette.py, which emits the Plasma
+# colour scheme, the Plasma desktop theme colours, the GTK override and the
+# Calamares stylesheet. Do not hand-edit generated files.
+#
+# Values are lowercase #rrggbb. Derived shades (borders that clear 3:1,
+# disabled text, selection inactive text) are computed by the generator so
+# they stay consistent with the surfaces below.
+
+# Surfaces
+surface-deep = #120b09
+surface-base = #1a100e
+panel = #221412
+panel-raised = #2a1a16
+
+# Lines
+line = #4a2e24
+line-soft = #35211b
+
+# Text
+text = #fff6ed
+muted = #c9b8aa
+muted-dim = #9a8172
+
+# Accent
+accent = #e59c3f
+accent-bright = #f5b85f
+accent-ink = #201411
+
+# Status
+positive = #7ac77a
+warning = #e8c15a
+negative = #f7768e
+info = #7fb8e6

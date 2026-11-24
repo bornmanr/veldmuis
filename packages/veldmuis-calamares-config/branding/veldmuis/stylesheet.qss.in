@@ -1,0 +1,47 @@
+/*
+ * Colours are injected from packages/veldmuis-branding/palette/veldmuis.palette
+ * by development/generate-brand-palette.py, which writes stylesheet.qss from
+ * this template. Edit the template, not the generated stylesheet.
+ *
+ * SPDX-FileCopyrightText: no
+ * SPDX-License-Identifier: CC0-1.0
+ */
+
+QWidget {
+  background-color: {{surface-base}};
+  color: {{text}};
+}
+
+#sidebarApp {
+  border-right: 1px solid rgba({{accent-rgb}}, 0.25);
+}
+
+QPushButton {
+  background-color: {{panel-raised}};
+  border: 1px solid rgba({{accent-rgb}}, 0.35);
+  border-radius: 6px;
+  color: {{text}};
+  padding: 6px 12px;
+}
+
+QPushButton:enabled {
+  background-color: {{accent}};
+  border-color: {{accent}};
+  color: {{accent-ink}};
+}
+
+QLineEdit,
+QComboBox,
+QTextEdit,
+QPlainTextEdit,
+QListView,
+QTreeView,
+QTableView {
+  background-color: {{panel-raised}};
+  border: 1px solid rgba({{accent-rgb}}, 0.25);
+  color: {{text}};
+}
+
+QListView#products {
+  min-width: 360px;
+}

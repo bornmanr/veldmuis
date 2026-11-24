@@ -2,13 +2,13 @@
 widgetStyle=Breeze
 
 [kdeglobals][General]
-ColorScheme=BreezeDark
+ColorScheme=Veldmuis
 
 [kdeglobals][Icons]
 Theme=breeze-dark
 
 [plasmarc][Theme]
-name=default
+name=Veldmuis
 
 [Wallpaper]
 Image=VeldmuisDawn
@@ -24,4 +24,4 @@ theme=Breeze
 TopLeft=None
 
 [KSplash]
-Theme=org.kde.Breeze
+Theme=org.veldmuis.desktop

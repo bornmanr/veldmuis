@@ -1,0 +1,17 @@
+{
+    "KPackageStructure": "Plasma/DesktopTheme",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Veldmuis Linux"
+            }
+        ],
+        "Category": "",
+        "Description": "Breeze desktop theme with the Veldmuis palette",
+        "Id": "Veldmuis",
+        "License": "LGPL-2.0-or-later",
+        "Name": "Veldmuis",
+        "Version": "1.0"
+    },
+    "X-Plasma-API": "5.0"
+}
