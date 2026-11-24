@@ -1,5 +1,5 @@
 pkgname=veldmuis-skemer
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=2
 pkgdesc="Skemer update manager for Veldmuis (prebuilt signed upstream release)"
 arch=("x86_64")
@@ -22,7 +22,7 @@ conflicts=("veldmuis-update")
 options=("!strip" "!debug")
 install="veldmuis-skemer.install"
 source=("skemer-${pkgver}-x86_64-linux.tar.gz::${url}/releases/download/v${pkgver}/skemer-${pkgver}-x86_64-linux.tar.gz")
-sha256sums=("2d4d4697c4f9bd1835ff1c0969b20f92ed7cc0d001c0dbd44c78a5d219a67a9e")
+sha256sums=("7db770f05cdc7e7bcd8a50d7e978cbdfc234161517f56ce2bb24f4c2801133e9")
 
 package() {
   cd "${srcdir}/skemer-${pkgver}-x86_64-linux"
