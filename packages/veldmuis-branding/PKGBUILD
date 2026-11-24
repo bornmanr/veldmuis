@@ -1,6 +1,6 @@
 pkgname=veldmuis-branding
 pkgver=20260306
-pkgrel=25
+pkgrel=26
 pkgdesc="Branding assets and default theme configuration for Veldmuis Linux"
 arch=("any")
 url="https://github.com/bornmanr/veldmuis"
@@ -25,6 +25,8 @@ sha256sums=(
   "ea3a60d2840d0c16f8feea17a82de50dca80085f23fc1ced7758d5260466078b"
 )
 _payload_sha256sums=(
+  "c2f252a969a8d53d42f43dd8efe090bfc7a7a52248f40214f77c24a1fb4377a0  migration/veldmuis-apply-branding.sh"
+  "9b7ad20ef13ea488acdcdf398df603e14e8cdadca0a34935956652054829aa48  migration/veldmuis-branding-once.desktop"
   "594edb1d7931c103b441f097c2889865f6b05ee8d1ac0f56cd9d2754d1d2e2ab  palette/veldmuis.palette"
   "cdf3ba0d04d6b74129f7f8d9a9de9a4a39e184a5a44bff21b963fde7f93bbe9d  colors/Veldmuis.colors"
   "d3917cb120f4b6ae742e54ab9a9803a8b7973758f8e858a8aa6a4b4661ea2ef1  gtk/settings-3.0.ini"
@@ -62,6 +64,10 @@ package() {
     "${pkgdir}/etc/xdg/gwenviewrc"
   install -Dm644 "${srcdir}/kscreenlockerrc" \
     "${pkgdir}/etc/xdg/kscreenlockerrc"
+  install -Dm755 "${_source_root}/migration/veldmuis-apply-branding.sh" \
+    "${pkgdir}/usr/bin/veldmuis-apply-branding"
+  install -Dm644 "${_source_root}/migration/veldmuis-branding-once.desktop" \
+    "${pkgdir}/etc/xdg/autostart/veldmuis-branding-once.desktop"
   install -Dm644 "${_source_root}/colors/Veldmuis.colors" \
     "${pkgdir}/usr/share/color-schemes/Veldmuis.colors"
   install -Dm644 "${_source_root}/gtk/settings-3.0.ini" \

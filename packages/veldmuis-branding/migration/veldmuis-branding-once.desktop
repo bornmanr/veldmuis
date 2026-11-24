@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Veldmuis branding
+Comment=Apply the Veldmuis colour scheme once for this user
+Exec=/usr/bin/veldmuis-apply-branding
+Icon=preferences-desktop-color
+Terminal=false
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-after=panel
+X-GNOME-Autostart-enabled=true
