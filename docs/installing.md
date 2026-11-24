@@ -159,17 +159,31 @@ and has a higher update risk on a rolling Arch base. Read
 
 ### Optional Applications
 
-The extras page can add these metapackages:
+The extras page adds optional applications. Each row installs exactly what it
+lists, so an application you do not want is not pulled in:
 
-| Selection | Package group | Applications or integration |
-| --- | --- | --- |
-| Gaming | `veldmuis-gaming` | Steam, Lutris, and Discord |
-| Downloads | `veldmuis-downloads` | qBittorrent |
-| Sync | `veldmuis-sync` | Syncthing and Veldmuis integration |
-| Development | `veldmuis-development` | Visual Studio Code and GitHub CLI |
+| Selection | Installs |
+| --- | --- |
+| Steam | `steam` |
+| Lutris | `lutris` |
+| Discord | `discord` |
+| qBittorrent | `veldmuis-downloads` (qBittorrent) |
+| Syncthing | `veldmuis-sync` (Syncthing, setup helper, Firefox bookmark) |
+| Visual Studio Code | `veldmuis-development` (Visual Studio Code, GitHub CLI) |
+| Dotfiles restore | `veldmuis-dotfiles` (chezmoi and the restore helper) |
+| opencode | `opencode` |
+| Codex CLI | `openai-codex` |
 
-These groups can also be installed later. They are not required for the base
-desktop.
+Steam, Lutris, and Discord used to be one grouped Gaming selection that
+installed the `veldmuis-gaming` metapackage. The installer now installs them
+individually so each can be removed on its own; `veldmuis-gaming` is still
+published for manual installs.
+
+Claude Code is not offered yet: it is AUR-only and its license does not allow
+Veldmuis to redistribute a built package.
+
+These applications can also be installed later. They are not required for the
+base desktop.
 
 ## 6. Finish And Reboot
 

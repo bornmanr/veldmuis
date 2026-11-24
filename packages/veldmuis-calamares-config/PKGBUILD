@@ -1,6 +1,6 @@
 pkgname=veldmuis-calamares-config
 pkgver=20260308
-pkgrel=58
+pkgrel=59
 pkgdesc="Veldmuis Calamares configuration and bootstrap scripts"
 arch=("any")
 url="https://github.com/bornmanr/veldmuis"
@@ -20,9 +20,9 @@ source=(
   "installer-package-sets.sh"
 )
 sha256sums=(
-  "a5b527310f057519b61c3d14ea98d09af2c1763bdd88870e2b5be182549ddf5d"
-  "6bfba7c7ab7cf5c1691f24412ffc7694b746b7c9d7457cab9a86238dd7fa1bb0"
-  "4bc282bb7f19d216544af481eedb2f1893a163c7c7924803ea9c00acda9fc7d6"
+  "225456bc3fef13ee42cd838aaafee90df3a7fa08ea86a92bc48af65a7d272ad2"
+  "f0e50dfe3c45fb6f825cb7d804257d926e2e2c51b1158e0bcb02a02fd73dc526"
+  "75cea7b1fcb986fcc6831e92958deac39d14d9a9c1d0a28920c3685595779840"
 )
 _payload_sha256sums=(
   "efbead495c34756036bdcb57a271ef284dcb1eb10e695346321b0cb780c87102  modules/bootloader.conf"
@@ -35,11 +35,15 @@ _payload_sha256sums=(
   "6ce527f16f583c0b45c69d1a58f76cf014264392ffa122b50385cab482eab06c  modules/services-systemd.conf"
   "6835cb9c4b2b2849a91d2288f582bf9d2ffb6caf3727ef1dc9413ef5a49b8414  modules/users.conf"
   "b2894e23003e8631071e36ef2c06e47c6f7e55934732eb9aa6496fea4c1ba082  modules/veldmuis-boot-finalize.conf"
-  "e5516b841837efb3fde23ca2756d7df348103a151b9dd693f266b56f038a6c2f  modules/veldmuis-bootstrap.conf"
+  "d01a2483d941efd66c9e23dfb35fcce6646a237c09410c54e8e6b77b59ed0c83  modules/veldmuis-bootstrap-prepare.conf"
+  "f0e4ebef218e7d95353e57e0eda842a6dc77dafecec733f1dbb95f0cff97ed31  modules/veldmuis-bootstrap-base.conf"
+  "782ec18e7d96744188fb33b4427e4301d7b137c5fa7e29a39853be2b8fcf8b74  modules/veldmuis-bootstrap-graphics.conf"
+  "b8567d9e0835ec0ab29e476c503b39394d7d0e4522a654e47d67be40a606e9f2  modules/veldmuis-bootstrap-extras.conf"
+  "ca9d070f2a88ace94de85d4b4a1aa5e24e4159b9a34599efd8bb9148b65fa4c2  modules/veldmuis-bootstrap-finalize.conf"
   "0d9a56a7e31181824b19150cdbee3f5fdbdaa02722a5a7b4626a0980117cf6aa  modules/welcome.conf"
   "0e075750ffaea5f65c7dc029d577f2c0bcc52866e97b7d9f2f4fdffe0dcff8ad  branding/veldmuis/branding.desc"
   "35f5c54e35342c985547da09fb25d714a49b6cd37c4982fc4386e42510c3b116  branding/veldmuis/logomain.png"
-  "37be5d990bedab37e9502e97a6b82614e7eca01bf65fb624404bfb283fba4a2a  branding/veldmuis/extras.qml"
+  "cfd7c74030e7c262fb57f4cce03b03f87c8943e5ec961da0e85f1fc3fbcb0a00  branding/veldmuis/extras.qml"
   "a516733b5892000e3c1dab72f98087009194c184e459a85fb7a32f1baa2f2142  branding/veldmuis/show.qml"
   "a9207a4d87ac8f2ba840373a3ac385d55b2ec26ecd1e566580b0f19ca167b357  branding/veldmuis/stylesheet.qss"
   "8755243103bbdf5a27cec8196defa4a33a74328c696c1503f72aebce68f0c1b7  ../veldmuis-branding/rat1.png"
@@ -67,7 +71,11 @@ package() {
     services-systemd \
     users \
     veldmuis-boot-finalize \
-    veldmuis-bootstrap \
+    veldmuis-bootstrap-base \
+    veldmuis-bootstrap-extras \
+    veldmuis-bootstrap-finalize \
+    veldmuis-bootstrap-graphics \
+    veldmuis-bootstrap-prepare \
     welcome
   do
     install -Dm644 "${_source_root}/modules/${module}.conf" \

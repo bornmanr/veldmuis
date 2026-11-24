@@ -185,16 +185,25 @@ Then run the AppImage again.
 
 ## Optional Extras Are Missing
 
-Optional application groups are not part of the default desktop install.
+Optional applications are not part of the default desktop install.
 
 Install them manually with:
 
 ```sh
-sudo pacman -S veldmuis-gaming
+sudo pacman -S steam
+sudo pacman -S lutris
+sudo pacman -S discord
 sudo pacman -S veldmuis-downloads
 sudo pacman -S veldmuis-sync
 sudo pacman -S veldmuis-development
+sudo pacman -S veldmuis-dotfiles
+sudo pacman -S opencode
+sudo pacman -S openai-codex
 ```
+
+Steam, Lutris, and Discord are installed individually. `veldmuis-gaming` is
+still published and pulls in all three for anyone who wants the old grouped
+install.
 
 Current optional groups are documented in [Package Composition](packages.md).
 
