@@ -59,8 +59,9 @@ declare -ag veldmuis_installer_gaming_packages=(
   veldmuis-gaming
 )
 
-# These direct package sets let the closure validator exercise the individual
-# applications as well as the grouped installer choice.
+# One array per selectable application. The Extras page installs these directly
+# so each application can be removed independently; the grouped metapackage is
+# only kept for the legacy "gaming" token.
 declare -ag veldmuis_installer_steam_packages=(steam)
 declare -ag veldmuis_installer_lutris_packages=(lutris)
 declare -ag veldmuis_installer_discord_packages=(discord)
@@ -80,6 +81,11 @@ declare -ag veldmuis_installer_development_packages=(
 declare -ag veldmuis_installer_dotfiles_packages=(
   veldmuis-dotfiles
 )
+
+# AI coding agents. Both are Arch packages (extra); Claude Code is AUR-only and
+# intentionally not offered until its redistribution terms are settled.
+declare -ag veldmuis_installer_opencode_packages=(opencode)
+declare -ag veldmuis_installer_codex_packages=(openai-codex)
 
 # The installer always provides the Veldmuis terminal.
 declare -ag veldmuis_installer_terminal_packages=(

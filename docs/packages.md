@@ -206,10 +206,22 @@ so that a missing or locked wallet does not block login or prompt unexpectedly.
 
 ## Optional Application Groups
 
-Optional groups are installed only when selected in the installer or installed
-manually later.
+Optional applications are installed only when selected in the installer or
+installed manually later. The installer offers them per application; the
+grouped metapackages below are kept for manual installs and for the legacy
+`gaming` installer answer.
 
-`veldmuis-gaming`:
+Installed individually by the installer:
+
+```text
+steam
+lutris
+discord
+opencode
+openai-codex
+```
+
+`veldmuis-gaming` (all three game applications):
 
 ```text
 steam
@@ -309,7 +321,8 @@ It then adds:
 
 - CPU microcode for detected AMD or Intel CPUs.
 - The selected graphics package set.
-- Optional gaming, download, sync, development, and personal metapackages.
+- Optional applications: Steam, Lutris, Discord (each individually), qBittorrent,
+  Syncthing, Visual Studio Code, dotfiles restore, opencode, and Codex CLI.
 
 Current ISO behavior: Veldmuis repositories are embedded in the ISO, while
 Arch packages are still resolved from Arch mirrors during installation.

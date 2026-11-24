@@ -28,8 +28,14 @@ Rectangle {
         }
 
         var selected = []
-        if (gaming.checked) {
-            selected.push("gaming")
+        if (steam.checked) {
+            selected.push("steam")
+        }
+        if (lutris.checked) {
+            selected.push("lutris")
+        }
+        if (discord.checked) {
+            selected.push("discord")
         }
         if (qbittorrent.checked) {
             selected.push("qbittorrent")
@@ -43,6 +49,12 @@ Rectangle {
         if (dotfiles.checked) {
             selected.push("dotfiles")
         }
+        if (opencode.checked) {
+            selected.push("opencode")
+        }
+        if (codex.checked) {
+            selected.push("codex")
+        }
         chooserConfig.packageChoice = selected.length > 0 ? selected.join(",") : noSelectionToken
     }
 
@@ -52,14 +64,20 @@ Rectangle {
             selected = chooserConfig.packageChoice.split(",")
         }
 
-        gaming.checked = selected.indexOf("gaming") >= 0
-                         || selected.indexOf("steam") >= 0
-                         || selected.indexOf("lutris") >= 0
-                         || selected.indexOf("discord") >= 0
+        // "gaming" is the legacy grouped token; tick the individual applications.
+        if (selected.indexOf("gaming") >= 0) {
+            selected.push("steam", "lutris", "discord")
+        }
+
+        steam.checked = selected.indexOf("steam") >= 0
+        lutris.checked = selected.indexOf("lutris") >= 0
+        discord.checked = selected.indexOf("discord") >= 0
         qbittorrent.checked = selected.indexOf("qbittorrent") >= 0
         syncthing.checked = selected.indexOf("syncthing") >= 0
         code.checked = selected.indexOf("code") >= 0
         dotfiles.checked = selected.indexOf("dotfiles") >= 0
+        opencode.checked = selected.indexOf("opencode") >= 0
+        codex.checked = selected.indexOf("codex") >= 0
         syncing = false
         // Publish the normalized selection right away so the global storage key exists
         // even when the user leaves this page without toggling anything.
@@ -68,363 +86,213 @@ Rectangle {
 
     Component.onCompleted: loadSelection()
 
+    component OptionRow: CheckBox {
+        id: control
+
+        property string title
+        property string description
+
+        width: parent ? parent.width : 0
+        height: 68
+        hoverEnabled: true
+        text: ""
+
+        indicator: Rectangle {
+            width: 26
+            height: 26
+            x: 16
+            y: (control.height - height) / 2
+            radius: 5
+            color: control.checked ? "#e59c3f" : "#201411"
+            border.color: control.checked ? "#f5b85f" : "#80604d"
+            border.width: 2
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 11
+                height: 11
+                radius: 3
+                color: "#201411"
+                visible: control.checked
+            }
+        }
+
+        background: Rectangle {
+            radius: 6
+            color: control.checked ? "#3a271d"
+                                   : (control.hovered ? "#32211c" : "#2a1b17")
+            border.color: control.checked ? "#e59c3f" : "#5a3a2a"
+            border.width: control.checked ? 2 : 1
+        }
+
+        contentItem: Item {
+            implicitWidth: 0
+            implicitHeight: 0
+        }
+
+        Column {
+            anchors.left: control.indicator.right
+            anchors.leftMargin: 14
+            anchors.right: control.right
+            anchors.rightMargin: 16
+            anchors.verticalCenter: control.verticalCenter
+            spacing: 2
+
+            Text {
+                width: parent.width
+                text: control.title
+                color: "#fff6ed"
+                font.pixelSize: 16
+                font.bold: true
+                elide: Text.ElideRight
+            }
+
+            Text {
+                width: parent.width
+                text: control.description
+                color: "#c9b8aa"
+                font.pixelSize: 13
+                elide: Text.ElideRight
+            }
+        }
+
+        onToggled: root.updateSelection()
+    }
+
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 32
-        spacing: 20
+        anchors.margins: 28
+        spacing: 14
 
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 6
+            spacing: 4
 
             Label {
                 text: qsTr("Optional software")
                 color: "#fff6ed"
-                font.pixelSize: 28
+                font.pixelSize: 26
                 font.bold: true
             }
 
             Label {
                 Layout.fillWidth: true
-                text: qsTr("Choose any extras you want included in the installed system.")
+                text: qsTr("Choose any extras you want included in the installed system. Each application is installed on its own.")
                 color: "#c9b8aa"
-                font.pixelSize: 15
+                font.pixelSize: 14
                 wrapMode: Text.WordWrap
             }
         }
 
-        ColumnLayout {
+        Flickable {
+            id: scroller
+
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 10
-
-            CheckBox {
-                id: gaming
-
-                Layout.fillWidth: true
-                Layout.preferredHeight: 76
-                hoverEnabled: true
-                text: ""
-
-                indicator: Rectangle {
-                    width: 28
-                    height: 28
-                    x: 18
-                    y: (gaming.height - height) / 2
-                    radius: 5
-                    color: gaming.checked ? "#e59c3f" : "#201411"
-                    border.color: gaming.checked ? "#f5b85f" : "#80604d"
-                    border.width: 2
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: 12
-                        height: 12
-                        radius: 3
-                        color: "#201411"
-                        visible: gaming.checked
-                    }
-                }
-
-                background: Rectangle {
-                    radius: 6
-                    color: gaming.checked ? "#3a271d"
-                                            : (gaming.hovered ? "#32211c" : "#2a1b17")
-                    border.color: gaming.checked ? "#e59c3f" : "#5a3a2a"
-                    border.width: gaming.checked ? 2 : 1
-                }
-
-                Column {
-                    anchors.left: gaming.indicator.right
-                    anchors.leftMargin: 16
-                    anchors.right: parent.right
-                    anchors.rightMargin: 18
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 3
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Gaming apps")
-                        color: "#fff6ed"
-                        font.pixelSize: 17
-                        font.bold: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Steam, Lutris, and Discord")
-                        color: "#c9b8aa"
-                        font.pixelSize: 14
-                        elide: Text.ElideRight
-                    }
-                }
-
-                onToggled: root.updateSelection()
+            clip: true
+            contentWidth: width
+            contentHeight: optionColumn.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar {
+                policy: ScrollBar.AsNeeded
             }
 
-            CheckBox {
-                id: qbittorrent
+            Column {
+                id: optionColumn
 
-                Layout.fillWidth: true
-                Layout.preferredHeight: 76
-                hoverEnabled: true
-                text: ""
+                width: scroller.width
+                spacing: 8
 
-                indicator: Rectangle {
-                    width: 28
-                    height: 28
-                    x: 18
-                    y: (qbittorrent.height - height) / 2
-                    radius: 5
-                    color: qbittorrent.checked ? "#e59c3f" : "#201411"
-                    border.color: qbittorrent.checked ? "#f5b85f" : "#80604d"
-                    border.width: 2
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: 12
-                        height: 12
-                        radius: 3
-                        color: "#201411"
-                        visible: qbittorrent.checked
-                    }
+                Label {
+                    width: parent.width
+                    text: qsTr("Gaming")
+                    color: "#e59c3f"
+                    font.pixelSize: 13
+                    font.bold: true
+                    font.capitalization: Font.AllUppercase
                 }
 
-                background: Rectangle {
-                    radius: 6
-                    color: qbittorrent.checked ? "#3a271d"
-                                                : (qbittorrent.hovered ? "#32211c" : "#2a1b17")
-                    border.color: qbittorrent.checked ? "#e59c3f" : "#5a3a2a"
-                    border.width: qbittorrent.checked ? 2 : 1
+                OptionRow {
+                    id: steam
+                    title: qsTr("Steam")
+                    description: qsTr("Game store and library")
                 }
 
-                Column {
-                    anchors.left: qbittorrent.indicator.right
-                    anchors.leftMargin: 16
-                    anchors.right: parent.right
-                    anchors.rightMargin: 18
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 3
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Download tools")
-                        color: "#fff6ed"
-                        font.pixelSize: 17
-                        font.bold: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("qBittorrent")
-                        color: "#c9b8aa"
-                        font.pixelSize: 14
-                        elide: Text.ElideRight
-                    }
+                OptionRow {
+                    id: lutris
+                    title: qsTr("Lutris")
+                    description: qsTr("Game launcher for Wine, emulators, and native titles")
                 }
 
-                onToggled: root.updateSelection()
-            }
-
-            CheckBox {
-                id: syncthing
-
-                Layout.fillWidth: true
-                Layout.preferredHeight: 76
-                hoverEnabled: true
-                text: ""
-
-                indicator: Rectangle {
-                    width: 28
-                    height: 28
-                    x: 18
-                    y: (syncthing.height - height) / 2
-                    radius: 5
-                    color: syncthing.checked ? "#e59c3f" : "#201411"
-                    border.color: syncthing.checked ? "#f5b85f" : "#80604d"
-                    border.width: 2
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: 12
-                        height: 12
-                        radius: 3
-                        color: "#201411"
-                        visible: syncthing.checked
-                    }
+                OptionRow {
+                    id: discord
+                    title: qsTr("Discord")
+                    description: qsTr("Voice, video, and text chat")
                 }
 
-                background: Rectangle {
-                    radius: 6
-                    color: syncthing.checked ? "#3a271d"
-                                             : (syncthing.hovered ? "#32211c" : "#2a1b17")
-                    border.color: syncthing.checked ? "#e59c3f" : "#5a3a2a"
-                    border.width: syncthing.checked ? 2 : 1
+                Item {
+                    width: parent.width
+                    height: 8
                 }
 
-                Column {
-                    anchors.left: syncthing.indicator.right
-                    anchors.leftMargin: 16
-                    anchors.right: parent.right
-                    anchors.rightMargin: 18
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 3
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Sync tools")
-                        color: "#fff6ed"
-                        font.pixelSize: 17
-                        font.bold: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Syncthing")
-                        color: "#c9b8aa"
-                        font.pixelSize: 14
-                        elide: Text.ElideRight
-                    }
+                Label {
+                    width: parent.width
+                    text: qsTr("Tools")
+                    color: "#e59c3f"
+                    font.pixelSize: 13
+                    font.bold: true
+                    font.capitalization: Font.AllUppercase
                 }
 
-                onToggled: root.updateSelection()
-            }
-
-            CheckBox {
-                id: code
-
-                Layout.fillWidth: true
-                Layout.preferredHeight: 76
-                hoverEnabled: true
-                text: ""
-
-                indicator: Rectangle {
-                    width: 28
-                    height: 28
-                    x: 18
-                    y: (code.height - height) / 2
-                    radius: 5
-                    color: code.checked ? "#e59c3f" : "#201411"
-                    border.color: code.checked ? "#f5b85f" : "#80604d"
-                    border.width: 2
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: 12
-                        height: 12
-                        radius: 3
-                        color: "#201411"
-                        visible: code.checked
-                    }
+                OptionRow {
+                    id: qbittorrent
+                    title: qsTr("qBittorrent")
+                    description: qsTr("BitTorrent client")
                 }
 
-                background: Rectangle {
-                    radius: 6
-                    color: code.checked ? "#3a271d"
-                                        : (code.hovered ? "#32211c" : "#2a1b17")
-                    border.color: code.checked ? "#e59c3f" : "#5a3a2a"
-                    border.width: code.checked ? 2 : 1
+                OptionRow {
+                    id: syncthing
+                    title: qsTr("Syncthing")
+                    description: qsTr("Continuous file sync between devices")
                 }
 
-                Column {
-                    anchors.left: code.indicator.right
-                    anchors.leftMargin: 16
-                    anchors.right: parent.right
-                    anchors.rightMargin: 18
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 3
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Development tools")
-                        color: "#fff6ed"
-                        font.pixelSize: 17
-                        font.bold: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Visual Studio Code")
-                        color: "#c9b8aa"
-                        font.pixelSize: 14
-                        elide: Text.ElideRight
-                    }
+                OptionRow {
+                    id: code
+                    title: qsTr("Visual Studio Code")
+                    description: qsTr("Code editor")
                 }
 
-                onToggled: root.updateSelection()
-            }
-
-            CheckBox {
-                id: dotfiles
-
-                Layout.fillWidth: true
-                Layout.preferredHeight: 76
-                hoverEnabled: true
-                text: ""
-
-                indicator: Rectangle {
-                    width: 28
-                    height: 28
-                    x: 18
-                    y: (dotfiles.height - height) / 2
-                    radius: 5
-                    color: dotfiles.checked ? "#e59c3f" : "#201411"
-                    border.color: dotfiles.checked ? "#f5b85f" : "#80604d"
-                    border.width: 2
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: 12
-                        height: 12
-                        radius: 3
-                        color: "#201411"
-                        visible: dotfiles.checked
-                    }
+                OptionRow {
+                    id: dotfiles
+                    title: qsTr("Dotfiles restore")
+                    description: qsTr("chezmoi and the restore helper")
                 }
 
-                background: Rectangle {
-                    radius: 6
-                    color: dotfiles.checked ? "#3a271d"
-                                           : (dotfiles.hovered ? "#32211c" : "#2a1b17")
-                    border.color: dotfiles.checked ? "#e59c3f" : "#5a3a2a"
-                    border.width: dotfiles.checked ? 2 : 1
+                Item {
+                    width: parent.width
+                    height: 8
                 }
 
-                Column {
-                    anchors.left: dotfiles.indicator.right
-                    anchors.leftMargin: 16
-                    anchors.right: parent.right
-                    anchors.rightMargin: 18
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 3
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Dotfiles restore")
-                        color: "#fff6ed"
-                        font.pixelSize: 17
-                        font.bold: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("chezmoi and the restore helper")
-                        color: "#c9b8aa"
-                        font.pixelSize: 14
-                        elide: Text.ElideRight
-                    }
+                Label {
+                    width: parent.width
+                    text: qsTr("AI coding agents")
+                    color: "#e59c3f"
+                    font.pixelSize: 13
+                    font.bold: true
+                    font.capitalization: Font.AllUppercase
                 }
 
-                onToggled: root.updateSelection()
-            }
+                OptionRow {
+                    id: opencode
+                    title: qsTr("opencode")
+                    description: qsTr("Open-source terminal coding agent")
+                }
 
-            Item {
-                Layout.fillHeight: true
+                OptionRow {
+                    id: codex
+                    title: qsTr("Codex CLI")
+                    description: qsTr("OpenAI's terminal coding agent")
+                }
             }
         }
     }

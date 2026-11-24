@@ -69,7 +69,9 @@ Calamares configuration lives under `packages/veldmuis-calamares-config/`.
 
 During installation, `veldmuis-calamares-bootstrap.sh` prepares a temporary
 pacman configuration, initializes Arch and Veldmuis keyrings, and installs the
-selected package stack into the target root with `pacstrap`.
+selected package stack into the target root with `pacstrap`. It runs as several
+Calamares jobs (`prepare`, `base`, `graphics`, `extras`, `finalize`) so the
+progress bar advances through the download instead of stalling on one job.
 
 The default target package is:
 
@@ -77,8 +79,9 @@ The default target package is:
 veldmuis-desktop
 ```
 
-Installer choices can add graphics-specific packages and optional application
-groups such as gaming, downloads, sync, and development.
+Installer choices can add graphics-specific packages and optional applications
+such as Steam, Lutris, Discord, qBittorrent, Syncthing, Visual Studio Code,
+dotfiles restore, opencode, and Codex CLI.
 
 The shared selection definition is
 `packages/veldmuis-calamares-config/installer-package-sets.sh`.

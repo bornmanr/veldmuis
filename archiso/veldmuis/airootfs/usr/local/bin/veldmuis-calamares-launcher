@@ -7,5 +7,13 @@ if ! command -v calamares >/dev/null 2>&1; then
   exit 1
 fi
 
+# Hold off idle handling, suspend and lid-close suspend while the installer runs:
+# a long download must not blank or suspend the live session. The inhibitor is
+# taken as root because blocking sleep and lid-switch handling is privileged.
 exec sudo --preserve-env=DISPLAY,XAUTHORITY,XDG_RUNTIME_DIR,WAYLAND_DISPLAY,DBUS_SESSION_BUS_ADDRESS,QT_QPA_PLATFORMTHEME \
+  systemd-inhibit \
+  --what=idle:sleep:handle-lid-switch \
+  --who="Veldmuis Installer" \
+  --why="Installing Veldmuis" \
+  --mode=block \
   /usr/bin/bash /usr/local/bin/veldmuis-calamares-root-runner

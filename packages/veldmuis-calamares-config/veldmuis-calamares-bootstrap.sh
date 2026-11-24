@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 
+# Installing the target system in phases lets Calamares advance its progress bar
+# during the long package download instead of sitting on a single opaque job.
+# Each phase is a separate shellprocess job (see settings.conf) that calls this
+# script with its phase name; "all" runs every phase in one go and is kept for
+# manual runs.
+
 set -euo pipefail
 
-target_root="${1:-}"
-graphics_choice="${2:-all-open-source}"
-extras_choice="${3:-}"
-gaming_choice="no-gaming"
-downloads_choice="no-downloads"
-sync_choice="no-sync"
-development_choice="no-development"
-dotfiles_choice="no-dotfiles"
+phase="${1:-all}"
+target_root="${2:-}"
+graphics_choice="${3:-all-open-source}"
+extras_choice="${4:-}"
 live_repo_root="/opt/veldmuis/repo"
 installer_package_sets="/usr/lib/veldmuis/installer-package-sets.sh"
-tmp_pacman_conf=""
-tmp_arch_mirrorlist=""
+state_dir="/tmp/veldmuis-calamares"
+pacman_conf="${state_dir}/pacman.conf"
+arch_mirrorlist="${state_dir}/mirrorlist"
 log_file="/tmp/veldmuis-calamares-bootstrap.log"
 
 log() {
@@ -30,12 +33,12 @@ require_cmd() {
 }
 
 cleanup() {
-  [[ -n "${tmp_pacman_conf}" ]] && rm -f "${tmp_pacman_conf}"
-  [[ -n "${tmp_arch_mirrorlist}" ]] && rm -f "${tmp_arch_mirrorlist}"
+  rm -rf "${state_dir}"
 }
 
 write_live_arch_mirrorlist() {
-  tmp_arch_mirrorlist="$(mktemp -t veldmuis-calamares-mirrorlist.XXXXXX)"
+  install -d -m700 "${state_dir}"
+  arch_mirrorlist="${state_dir}/mirrorlist"
 
   [[ -f /etc/pacman.d/mirrorlist ]] || \
     die "Live Arch mirrorlist is missing at /etc/pacman.d/mirrorlist."
@@ -47,10 +50,10 @@ write_live_arch_mirrorlist() {
       found = 1
     }
     END { exit found ? 0 : 1 }
-  ' /etc/pacman.d/mirrorlist >"${tmp_arch_mirrorlist}" || \
+  ' /etc/pacman.d/mirrorlist >"${arch_mirrorlist}" || \
     die "Live Arch mirrorlist has no active Server entries. The ISO mirror hook likely did not run."
 
-  chmod 644 "${tmp_arch_mirrorlist}"
+  chmod 644 "${arch_mirrorlist}"
   log "Using active Arch mirrors from the live mirrorlist"
 }
 
@@ -63,10 +66,12 @@ write_ranked_arch_mirrorlist() {
     return
   fi
 
+  install -d -m700 "${state_dir}"
   ranked_mirrorlist="$(mktemp -t veldmuis-calamares-ranked-mirrorlist.XXXXXX)"
   if veldmuis-refresh-arch-mirrors --output "${ranked_mirrorlist}" --no-backup; then
-    tmp_arch_mirrorlist="${ranked_mirrorlist}"
-    chmod 644 "${tmp_arch_mirrorlist}"
+    arch_mirrorlist="${state_dir}/mirrorlist"
+    mv -f "${ranked_mirrorlist}" "${arch_mirrorlist}"
+    chmod 644 "${arch_mirrorlist}"
     log "Using ranked Arch mirrors from reflector"
     return
   fi
@@ -94,115 +99,35 @@ normalize_graphics_choice() {
   esac
 }
 
-normalize_gaming_choice() {
-  case "${gaming_choice}" in
-    no-gaming|gaming)
-      ;;
-    "")
-      gaming_choice="no-gaming"
-      ;;
-    *)
-      log "Unknown gaming choice '${gaming_choice}', defaulting to no-gaming"
-      gaming_choice="no-gaming"
-      ;;
-  esac
-}
-
-normalize_downloads_choice() {
-  case "${downloads_choice}" in
-    no-downloads|qbittorrent)
-      ;;
-    "")
-      downloads_choice="no-downloads"
-      ;;
-    *)
-      log "Unknown downloads choice '${downloads_choice}', defaulting to no-downloads"
-      downloads_choice="no-downloads"
-      ;;
-  esac
-}
-
-normalize_sync_choice() {
-  case "${sync_choice}" in
-    no-sync|syncthing)
-      ;;
-    "")
-      sync_choice="no-sync"
-      ;;
-    *)
-      log "Unknown sync choice '${sync_choice}', defaulting to no-sync"
-      sync_choice="no-sync"
-      ;;
-  esac
-}
-
-normalize_development_choice() {
-  case "${development_choice}" in
-    no-development|code)
-      ;;
-    "")
-      development_choice="no-development"
-      ;;
-    *)
-      log "Unknown development choice '${development_choice}', defaulting to no-development"
-      development_choice="no-development"
-      ;;
-  esac
-}
-
-normalize_dotfiles_choice() {
-  case "${dotfiles_choice}" in
-    no-dotfiles|dotfiles)
-      ;;
-    "")
-      dotfiles_choice="no-dotfiles"
-      ;;
-    *)
-      log "Unknown dotfiles choice '${dotfiles_choice}', defaulting to no-dotfiles"
-      dotfiles_choice="no-dotfiles"
-      ;;
-  esac
-}
-
+# Extras tokens accepted by the installer UI. Every token maps to exactly one
+# selectable row; "gaming" is the legacy grouped token and still installs the
+# veldmuis-gaming metapackage so older answers keep working.
 normalize_extras_choice() {
   local extra
   local -a extras=()
-
-  gaming_choice="no-gaming"
-  downloads_choice="no-downloads"
-  sync_choice="no-sync"
-  development_choice="no-development"
-  dotfiles_choice="no-dotfiles"
+  local -a validated=()
 
   [[ -n "${extras_choice}" ]] || return 0
 
   IFS=',' read -r -a extras <<<"${extras_choice}"
   for extra in "${extras[@]}"; do
     case "${extra}" in
-      gaming|steam|lutris|discord)
-        gaming_choice="gaming"
+      gaming|steam|lutris|discord|qbittorrent|syncthing|code|dotfiles|opencode|codex)
+        validated+=("${extra}")
         ;;
-      qbittorrent)
-        downloads_choice="qbittorrent"
-        ;;
-      syncthing)
-        sync_choice="syncthing"
-        ;;
-      code)
-        development_choice="code"
-        ;;
-      dotfiles)
-        dotfiles_choice="dotfiles"
-        ;;
-      "")
-        ;;
-      None)
+      ""|None)
         ;;
       *)
         log "Unknown extras choice '${extra}', ignoring it"
         ;;
     esac
   done
+
+  extras_choice="$(printf '%s\n' "${validated[@]}" | awk 'NF && !seen[$0]++' | paste -sd, -)"
+}
+
+extras_has() {
+  [[ ",${extras_choice}," == *",$1,"* ]]
 }
 
 has_non_loopback_nameserver() {
@@ -234,10 +159,11 @@ pick_resolver_source() {
 }
 
 write_pacman_conf() {
-  tmp_pacman_conf="$(mktemp -t veldmuis-calamares-pacman.XXXXXX)"
+  install -d -m700 "${state_dir}"
+  pacman_conf="${state_dir}/pacman.conf"
 
   write_arch_mirrorlist
-  cat >"${tmp_pacman_conf}" <<EOF
+  cat >"${pacman_conf}" <<EOF
 [options]
 HoldPkg = pacman glibc
 Architecture = auto
@@ -248,13 +174,13 @@ ParallelDownloads = 1
 DisableDownloadTimeout
 
 [core]
-Include = ${tmp_arch_mirrorlist}
+Include = ${arch_mirrorlist}
 
 [extra]
-Include = ${tmp_arch_mirrorlist}
+Include = ${arch_mirrorlist}
 
 [multilib]
-Include = ${tmp_arch_mirrorlist}
+Include = ${arch_mirrorlist}
 
 [veldmuis-core]
 SigLevel = Required DatabaseRequired
@@ -264,6 +190,17 @@ Server = file://${live_repo_root}/veldmuis-core/os/\$arch
 SigLevel = Required DatabaseRequired
 Server = file://${live_repo_root}/veldmuis-extra/os/\$arch
 EOF
+}
+
+# Later phases reuse the pacman configuration and ranked mirrorlist that the
+# prepare phase produced, so reflector and the keyring work happen only once.
+ensure_pacman_conf() {
+  if [[ -s "${pacman_conf}" && -s "${arch_mirrorlist}" ]]; then
+    log "Reusing the prepared pacman configuration"
+    return 0
+  fi
+
+  write_pacman_conf
 }
 
 has_secret_key() {
@@ -350,9 +287,9 @@ prepare_target_root() {
 }
 
 install_target_arch_mirrorlist() {
-  [[ -n "${tmp_arch_mirrorlist}" ]] || write_live_arch_mirrorlist
+  [[ -n "${arch_mirrorlist}" ]] || write_live_arch_mirrorlist
   log "Installing Arch mirrorlist into target system"
-  install -Dm644 "${tmp_arch_mirrorlist}" "${target_root}/etc/pacman.d/mirrorlist"
+  install -Dm644 "${arch_mirrorlist}" "${target_root}/etc/pacman.d/mirrorlist"
 }
 
 normalize_keyring_permissions() {
@@ -419,107 +356,83 @@ selected_graphics_packages() {
   esac
 }
 
-selected_gaming_packages() {
-  case "${gaming_choice}" in
-    gaming)
-      printf '%s\n' "${veldmuis_installer_gaming_packages[@]}"
-      ;;
-  esac
-}
-
-selected_downloads_packages() {
-  case "${downloads_choice}" in
-    qbittorrent)
-      printf '%s\n' "${veldmuis_installer_downloads_packages[@]}"
-      ;;
-  esac
-}
-
-selected_sync_packages() {
-  case "${sync_choice}" in
-    syncthing)
-      printf '%s\n' "${veldmuis_installer_sync_packages[@]}"
-      ;;
-  esac
-}
-
-selected_development_packages() {
-  case "${development_choice}" in
-    code)
-      printf '%s\n' "${veldmuis_installer_development_packages[@]}"
-      ;;
-  esac
-}
-
-selected_dotfiles_packages() {
-  case "${dotfiles_choice}" in
-    dotfiles)
-      printf '%s\n' "${veldmuis_installer_dotfiles_packages[@]}"
-      ;;
-  esac
+selected_extras_packages() {
+  if extras_has gaming; then
+    printf '%s\n' "${veldmuis_installer_gaming_packages[@]}"
+  fi
+  if extras_has steam; then
+    printf '%s\n' "${veldmuis_installer_steam_packages[@]}"
+  fi
+  if extras_has lutris; then
+    printf '%s\n' "${veldmuis_installer_lutris_packages[@]}"
+  fi
+  if extras_has discord; then
+    printf '%s\n' "${veldmuis_installer_discord_packages[@]}"
+  fi
+  if extras_has qbittorrent; then
+    printf '%s\n' "${veldmuis_installer_downloads_packages[@]}"
+  fi
+  if extras_has syncthing; then
+    printf '%s\n' "${veldmuis_installer_sync_packages[@]}"
+  fi
+  if extras_has code; then
+    printf '%s\n' "${veldmuis_installer_development_packages[@]}"
+  fi
+  if extras_has dotfiles; then
+    printf '%s\n' "${veldmuis_installer_dotfiles_packages[@]}"
+  fi
+  if extras_has opencode; then
+    printf '%s\n' "${veldmuis_installer_opencode_packages[@]}"
+  fi
+  if extras_has codex; then
+    printf '%s\n' "${veldmuis_installer_codex_packages[@]}"
+  fi
 }
 
 selected_terminal_packages() {
   printf '%s\n' "${veldmuis_installer_terminal_packages[@]}"
 }
 
-initial_target_packages() {
+append_packages_from() {
   local package
-  local -a packages=("${veldmuis_installer_base_packages[@]}")
 
   while IFS= read -r package; do
     [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(cpu_microcode_packages)
-
-  while IFS= read -r package; do
-    [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(selected_graphics_packages)
-
-  while IFS= read -r package; do
-    [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(selected_gaming_packages)
-
-  while IFS= read -r package; do
-    [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(selected_downloads_packages)
-
-  while IFS= read -r package; do
-    [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(selected_sync_packages)
-
-  while IFS= read -r package; do
-    [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(selected_development_packages)
-
-  while IFS= read -r package; do
-    [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(selected_dotfiles_packages)
-
-  while IFS= read -r package; do
-    [[ -n "${package}" ]] || continue
-    packages+=("${package}")
-  done < <(selected_terminal_packages)
-
-  printf '%s\n' "${packages[@]}"
+    PACKAGE_BATCH+=("${package}")
+  done < <("$@")
 }
 
-main() {
-  require_cmd pacstrap
-  require_cmd pacman-key
-  require_cmd gpg
-  require_cmd arch-chroot
-  local release_key_id=""
-  local -a bootstrap_packages=()
+# Packages that turn a bare chroot into a bootable Veldmuis base system.
+base_phase_packages() {
+  PACKAGE_BATCH=("${veldmuis_installer_base_packages[@]}")
+  append_packages_from cpu_microcode_packages
+  append_packages_from selected_terminal_packages
+  printf '%s\n' "${PACKAGE_BATCH[@]}"
+}
 
-  exec > >(tee "${log_file}") 2>&1
+graphics_phase_packages() {
+  PACKAGE_BATCH=()
+  append_packages_from selected_graphics_packages
+  ((${#PACKAGE_BATCH[@]} == 0)) && return 0
+  printf '%s\n' "${PACKAGE_BATCH[@]}"
+}
 
+extras_phase_packages() {
+  PACKAGE_BATCH=()
+  append_packages_from selected_extras_packages
+  ((${#PACKAGE_BATCH[@]} == 0)) && return 0
+  printf '%s\n' "${PACKAGE_BATCH[@]}"
+}
+
+initial_target_packages() {
+  PACKAGE_BATCH=()
+  append_packages_from base_phase_packages
+  append_packages_from graphics_phase_packages
+  append_packages_from extras_phase_packages
+  printf '%s\n' "${PACKAGE_BATCH[@]}"
+}
+
+validate_environment() {
   [[ -n "${target_root}" ]] || die "Missing target root argument."
   [[ -d "${target_root}" ]] || die "Target root does not exist: ${target_root}"
   [[ -s "${live_repo_root}/veldmuis-core/os/x86_64/veldmuis-core.db.tar.gz" && \
@@ -532,26 +445,72 @@ main() {
 
   # shellcheck source=packages/veldmuis-calamares-config/installer-package-sets.sh
   . "${installer_package_sets}"
+}
 
-  trap cleanup EXIT
+log_selection() {
+  log "Selected graphics choice: ${graphics_choice}"
+  log "Selected extras choices: ${extras_choice:-none}"
+}
+
+# Mirrors, pacman configuration, target root skeleton and the live keyring. This
+# is the only phase that ranks mirrors, so later phases start quickly.
+phase_prepare() {
   normalize_graphics_choice
   normalize_extras_choice
-  normalize_gaming_choice
-  normalize_downloads_choice
-  normalize_sync_choice
-  normalize_development_choice
-  normalize_dotfiles_choice
   write_pacman_conf
   prepare_target_root
-
   ensure_keyring_populated /etc/pacman.d/gnupg /usr/share/pacman/keyrings live
+  log_selection
+}
+
+install_phase_packages() {
+  local label="$1"
+  local package_function="$2"
+  local -a packages=()
+
+  mapfile -t packages < <("${package_function}")
+
+  if ((${#packages[@]} == 0)); then
+    log "No packages selected for the ${label} phase"
+    return 0
+  fi
+
+  log "Installing ${label} packages into ${target_root}: ${packages[*]}"
+  pacstrap -C "${pacman_conf}" "${target_root}" "${packages[@]}"
+}
+
+# The base phase installs the desktop closure, which dominates the download.
+phase_base() {
+  normalize_graphics_choice
+  normalize_extras_choice
+  ensure_pacman_conf
+  install_phase_packages "base system" base_phase_packages
+}
+
+phase_graphics() {
+  normalize_graphics_choice
+  normalize_extras_choice
+  ensure_pacman_conf
+  install_phase_packages "graphics" graphics_phase_packages
+}
+
+phase_extras() {
+  normalize_graphics_choice
+  normalize_extras_choice
+  ensure_pacman_conf
+  install_phase_packages "optional extras" extras_phase_packages
+}
+
+# Target mirrorlist, target keyring and the Veldmuis repository include.
+phase_finalize() {
+  local release_key_id=""
+
+  normalize_graphics_choice
+  normalize_extras_choice
+  ensure_pacman_conf
+
   release_key_id="$(release_key_id_from_dir /usr/share/pacman/keyrings)"
-
-  mapfile -t bootstrap_packages < <(initial_target_packages)
-  log "Installing Veldmuis package stack into ${target_root}: ${bootstrap_packages[*]}"
-  pacstrap -C "${tmp_pacman_conf}" "${target_root}" "${bootstrap_packages[@]}"
   install_target_arch_mirrorlist
-
   ensure_target_keyring_populated "${release_key_id}"
   normalize_keyring_permissions "${target_root}/etc/pacman.d/gnupg"
 
@@ -559,14 +518,62 @@ main() {
     printf '\nInclude = /etc/pacman.conf.d/veldmuis.conf\n' >> "${target_root}/etc/pacman.conf"
   fi
 
-  log "Selected graphics choice: ${graphics_choice}"
-  log "Selected extras choices: ${extras_choice:-none}"
-  log "Selected gaming choice: ${gaming_choice}"
-  log "Selected downloads choice: ${downloads_choice}"
-  log "Selected sync choice: ${sync_choice}"
-  log "Selected development choice: ${development_choice}"
+  log_selection
+  cleanup
+}
 
-  log "Bootstrap complete"
+# Single-shot mode for manual runs: every phase in one job.
+phase_all() {
+  local release_key_id=""
+  local -a packages=()
+
+  normalize_graphics_choice
+  normalize_extras_choice
+  write_pacman_conf
+  prepare_target_root
+  ensure_keyring_populated /etc/pacman.d/gnupg /usr/share/pacman/keyrings live
+  release_key_id="$(release_key_id_from_dir /usr/share/pacman/keyrings)"
+
+  mapfile -t packages < <(initial_target_packages)
+  log "Installing Veldmuis package stack into ${target_root}: ${packages[*]}"
+  pacstrap -C "${pacman_conf}" "${target_root}" "${packages[@]}"
+
+  install_target_arch_mirrorlist
+  ensure_target_keyring_populated "${release_key_id}"
+  normalize_keyring_permissions "${target_root}/etc/pacman.d/gnupg"
+
+  if ! grep -qxF 'Include = /etc/pacman.conf.d/veldmuis.conf' "${target_root}/etc/pacman.conf"; then
+    printf '\nInclude = /etc/pacman.conf.d/veldmuis.conf\n' >> "${target_root}/etc/pacman.conf"
+  fi
+
+  log_selection
+  cleanup
+}
+
+main() {
+  require_cmd pacstrap
+  require_cmd pacman-key
+  require_cmd gpg
+  require_cmd arch-chroot
+
+  exec > >(tee "${log_file}") 2>&1
+
+  validate_environment
+  log "Bootstrap phase '${phase}' starting"
+
+  case "${phase}" in
+    prepare|base|graphics|extras|finalize)
+      "phase_${phase}"
+      ;;
+    all)
+      phase_all
+      ;;
+    *)
+      die "Unknown bootstrap phase '${phase}'"
+      ;;
+  esac
+
+  log "Bootstrap phase '${phase}' complete"
 }
 
 main "$@"
