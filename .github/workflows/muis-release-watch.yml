@@ -2,8 +2,10 @@ name: muis Release Watch
 
 on:
   schedule:
-    # 11:47 Africa/Johannesburg. GitHub cron uses UTC.
-    - cron: "47 9 * * *"
+    # 13:47 Africa/Johannesburg (11:47 UTC). Deliberately after muis's own
+    # 12:00 SAST (10:00 UTC) release run, so a release cut today is proposed
+    # for the pin today instead of waiting for tomorrow's watch.
+    - cron: "47 11 * * *"
   workflow_dispatch:
 
 permissions:
