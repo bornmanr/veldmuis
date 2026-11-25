@@ -30,6 +30,43 @@ test "${actual_sha256}" = "${expected_sha256}"
 Confirm the signing fingerprint and see [Security Policy](../SECURITY.md) for
 the full verification flow.
 
+## Live ISO Does Not Boot
+
+Veldmuis media is UEFI-only. The ISO ships a systemd-boot UEFI boot path and no
+legacy BIOS boot entry, so firmware or a virtual machine that boots in legacy
+mode reports no bootable device.
+
+Check the firmware settings:
+
+- Disable legacy/CSM boot and Secure Boot.
+- Boot the installation medium from its UEFI boot entry.
+
+For a virtual machine, select UEFI (OVMF) firmware before the first start.
+`development/create-arch-test-vm.sh` does this with `--boot uefi`.
+
+### Root Prompt After Booting From Ventoy
+
+Ventoy can start the live kernel from the ISO's systemd-boot entry even when
+Ventoy itself was booted in legacy mode. In that mode Ventoy does not expose the
+ISO as a virtual CD device, so the archiso initramfs cannot find it and stops at
+a root prompt. The ACPI messages printed before that prompt are firmware
+warnings, not the cause; do not disable ACPI.
+
+Boot Ventoy in UEFI mode, keep it updated, and select the ISO from the UEFI
+Ventoy entry. If the root prompt remains, write the ISO directly with `dd` or a
+UEFI/GPT-capable writer as described in [Installing Veldmuis](installing.md).
+
+From the root prompt, the boot parameters and visible filesystem UUIDs show
+whether the initramfs can find the medium:
+
+```sh
+cat /proc/cmdline
+ls /dev/disk/by-uuid
+```
+
+The `archisosearchuuid=` value in `/proc/cmdline` must appear in
+`/dev/disk/by-uuid`.
+
 ## Live ISO Does Not Reach Graphics
 
 Use the safe-graphics live boot entry. The live ISO includes a safe-graphics

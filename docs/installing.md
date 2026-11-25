@@ -78,11 +78,18 @@ Replace `/dev/sdX` with the whole USB device, not a partition such as
 `/dev/sdX1`. This command overwrites the selected device. Confirm the device
 path before running it.
 
+Veldmuis media is UEFI-only. Do not write it for a legacy or CSM boot mode. If
+Ventoy is used, boot Ventoy in UEFI mode and keep it updated; Ventoy in legacy
+mode can start the live kernel but cannot supply the ISO to the initramfs.
+
 ## 3. Boot The Live Environment
 
 1. Reboot and open the firmware boot menu.
 2. Select the UEFI entry for the installation medium.
 3. Start the normal Veldmuis live entry.
+
+For a virtual machine, attach the ISO to a VM with UEFI (OVMF) firmware before
+the first start. A VM created with legacy BIOS firmware cannot boot this media.
 
 If the live session does not reach a graphical desktop, reboot and use the
 safe-graphics entry. It starts the live system with:
